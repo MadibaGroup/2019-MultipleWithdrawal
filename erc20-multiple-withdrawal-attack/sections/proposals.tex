@@ -2,49 +2,49 @@
 
 \section{Proposals}
 \subsection{Proposal 1: Securing \textit{approve} method}
-As discussed, a feasible solution would be to use CAS pattern to see new allowance atomically. These needs tracking of transferred tokens that requires adding a new mapping variable to the ERC20 token. This change will still keep the token code compatible with other smart contracts due to internal usage of the variable. Consequently, \textit{transferFrom} method will have an new line of code for tracking transferred tokens by adding transferred tokens to transferred variable:
+As discussed, a feasible solution would be to use CAS pattern to set new allowance atomically. This needs knowledge of transferred tokens that requires adding a new mapping variable to token code. The code would be still compatible with other smart contracts due to internal usage of the variable. Consequently, \textit{transferFrom} method will have an new line of code for tracking transferred tokens:
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_14.png}
-	\caption{Modified version of transferFrom based on added mapping variable.}
+	\caption{Modified version of \textit{transferFrom} based on added mapping variable.}
 \end{figure}
-Similarly, a block of code will be added to approve function to compare new allowance with transferred tokens. It has to cover setting to zero and non-zero values:
+\noindent Similarly, a block of code will be added to the \textit{approve} function to compare new allowance with transferred tokens. It has to work in both cases with zero and non-zero allowance set:
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_15.png}
-	\caption{Added code block to approve function to compare and set new allowance value.}
+	\caption{Added code block to \textit{approve} function to compare and set new allowance value.}
 \end{figure}
-Added code to \textit{approve} function will compare new allowance (\_tokens) with current allowance of the spender (\textit{allowed[msg.sender][\_spender]}) and with already transferred token (\textit{transferred[msg.sender][\_spender]}). Then it decides to increase or decrease current allowance. If new allowance is less than initial allowance (sum of allowance and transferred), it denotes decreasing allowance, otherwise increasing allowance was intended. For example, we consider two below scenarios:\newline\newline
-\noindent A. Alice approves Bob for spending 100 tokens and then decides to decrease it to 10 tokens.
+\noindent Added code to \textit{approve} function will compare new allowance (\textit{\_tokens}) with current allowance of the spender (allowed[msg.sender][\_spender]) and with already transferred token (transferred[msg.sender][\_spender]). Then it decides to increase or decrease current allowance. If new allowance is less than initial allowance (sum of \textit{allowance} and \textit{transferred} variables), it denotes decreasing allowance, otherwise increasing allowance was intended. For example, we consider these scenarios:\newline\newline
+\noindent \textbf{A.} Alice approves Bob for spending 100 tokens and then decides to decrease it to 10 tokens.
 \begin{enumerate}
 	\item Alice approves Bob for transferring 100 tokens.
 	\item After a while, Alice decides to reduce Bob’s allowance from 100 to 10 tokens.
 	\item Bob noticed Alice’s new transaction and transfers 100 tokens by front-running.
-	\item Bob’s allowance is 0 and transferred is 100 (set by transferFrom function).
+	\item Bob’s allowance is 0 and \textit{transferred} is 100 (set by \textit{transferFrom} function).
 	\item Alice’s transaction is mined and checks initial allowance (100) with new allowance (10).
 	\item As it is reducing, transferred tokens (100) will be compared with new allowance (10).
-	\item Since Bob already transferred more tokens, his allowance will set to 0.
+	\item Since Bob already transferred more tokens, his allowance will be set to 0.
 	\item Bob is not able to move more than initial approved tokens.\newline
 \end{enumerate}
 
-\noindent B. Alice approves Bob for spending 100 tokens and then decides to increase it to 120 tokens.
+\noindent \textbf{B.} Alice approves Bob for spending 100 tokens and then decides to increase it to 120 tokens.
 \begin{enumerate}
 	\item Alice approves Bob for transferring 100 tokens.
 	\item After a while, Alice decides to increase Bob’s allowance from 100 to 120 tokens.
 	\item Bob noticed Alice’s new transaction and transfers 100 tokens by front-running.
-	\item Bob’s allowance is 0 and transferred is 100.
+	\item Bob’s allowance is 0 and \textit{transferred} is 100.
 	\item Alice’s transaction is mined and checks initial allowance (100) with new allowance (120).
 	\item As it is increasing, new allowance (120) will be subtracted from transferred tokens (100).
 	\item 20 tokens will be added to Bob’s allowance.
 	\item Bob would be able to transfer more 20 tokens (120 in total as Alice wanted).
 \end{enumerate}
-In order to evaluate functionality of the new approve/transferFrom functions, we have implemented a standard ERC20 token (TKNv1\footnote{https://rinkeby.etherscan.io/address/0x8825bac68a3f6939c296a40fc8078d18c2f66ac7}) along side proposed ERC20 token (TKNv2\footnote{https://rinkeby.etherscan.io/address/0xf2b34125223ee54dff48f71567d4b2a4a0c9858b}). Result of tests for different input values shows that TKNv2 can address multiple withdrawal attack by making front-running gain ineffective. Moreover, we compared these two tokens in term of Gas consumption. \textit{TokenV2.approve} uses almost the same amount of Gas as \textit{TokenV1.approve}, however, gas consumption of \textit{TokenV2.transferFrom} is around 50\% more than \textit{TokenV1.transferFrom}. This difference is because of maintaining a new mapping variable for tracking transferred tokens:
+In order to evaluate functionality of the new \textit{approve}/\textit{transferFrom} functions, we have implemented a standard ERC20 token (TKNv1\footnote{https://rinkeby.etherscan.io/address/0x8825bac68a3f6939c296a40fc8078d18c2f66ac7}) along side proposed ERC20 token (TKNv2\footnote{https://rinkeby.etherscan.io/address/0xf2b34125223ee54dff48f71567d4b2a4a0c9858b}). Result of tests for different input values shows that TKNv2 can address multiple withdrawal attack by making front-running gain ineffective. Moreover, we compared these two tokens in term of Gas consumption. TokenV2.\textit{approve} function uses almost the same amount of Gas as TokenV1.\textit{approve}, however, gas consumption of TokenV2.\textit{transferFrom} is around 50\% more than TokenV1.\textit{transferFrom}. This difference is because of maintaining a new mapping variable for tracking transferred tokens:
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_22.png}
 	\caption{comparison of Gas consumption between TKNv1 and TKNv2.}
 \end{figure}
-\noindent In term of compatibly, working with MetaMask wallets have not raised any transfer issue. This shows compatibility of the token with existing wallets.
+\noindent In term of compatibly, working with standard wallets (like MetaMask) have not raised any transfer issue. This shows compatibility of the token with existing wallets.
 
 \subsection{Proposal 2: Securing \textit{transferFrom} method}
 Proposal 1 mitigates the attack in all situations, however it adjusts allowance based on transferred tokens. For example, if Alice allowed Bob for transferring 100 tokens and she decides to increase it to 120 tokens, the allowance will not directly set to 120 and the code adjusts it as below:
