@@ -1,13 +1,12 @@
-% !TEX root = ../main.tex
-
-
 \begin{abstract}
 
-ERC20 standard\footnote{ERC20 is the title of standard and it should be referred as EIP20 (which is the actual proposal for improvement). In this paper we use both ERC20 and EIP20 in one sense for simplicity.} defines set of functions for implementation of tokens in Ethereum blockchain. Tokens are subset of smart contracts that standardize creation of digital assets. These digital assets could aimed for representation of financial instrument (e.g., stocks, bonds, futures, etc), financial commodities (e.g., gold, oil, rice, etc) or even a new type of digital currency differs from Ether. ERC20 standard makes it possible for ERC20-compliant applications (e.g., online exchanges, automated payment systems, or decentralized games) to reuse ERC20 tokens. There are two functions in ERC20 standard (i.e., \textit{approve} and \textit{transferFrom}) that allow token transfer on behalf of the owner. In case of race condition, these two functions could be used in "Multiple Withdrawal Attack" that allows a spender to transfer more tokens than the owner ever wanted. This issue was initially raised on GitHub and is still open since October 2017. In this paper, 10 suggested solutions have been analyzed in terms of compatibility with the standard and mitigate the attack. Ultimately, new solution is proposed while adhering specifications of ERC20 standard and keeping backward compatibility with already deployed smart contracts.
-
+ERC20 standard defines set of interfaces for standardizing interaction with tokens on the Ethereum blockchain. Tokens facilitate creation of digital assets by introducing standard functionalities that can be reused by ERC20-compliant applications. Being subset of smart contracts, makes tokens vulnerable to security flaws, particularly, two functions in the standard that allow token transfer on behalf of the owner. In case of front-running, these two functions could be used in "Multiple Withdrawal Attack" that allows a spender to transfer more tokens than the owner ever wanted. This standard-level issue was initially raised on Github and may impact security of already deployed smart contracts. Its openness since October 2017 motivated us to (1) examine ten suggested solutions in terms of adhering to the specifications of standard and being backward compatible; (2) proposing a new solution that mitigates sustainably the attack.
 
 \end{abstract}
 
+
 \begin{IEEEkeywords}
-Cryptocurrency; Multiple Withdrawal Attack; ERC20; Token; Ethereum; Blockchain; Vulnerability;
+
+Cryptocurrency; Security; ERC20; Token; Smart Contract; Ethereum; Blockchain; 
+
 \end{IEEEkeywords}

@@ -1,6 +1,4 @@
-% !TEX root = ../main.tex
-
-\section{Proposals}
+\section{Solution proposal}
 \subsection{Proposal 1: Securing \textit{approve} method}
 As discussed, a feasible solution would be to use CAS pattern to set new allowance atomically. This needs knowledge of transferred tokens that requires adding a new mapping variable to token code. The code would be still compatible with other smart contracts due to internal usage of the variable. Consequently, \textit{transferFrom} method will have an new line of code for tracking transferred tokens:
 \begin{figure}[H]
