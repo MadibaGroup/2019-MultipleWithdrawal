@@ -11,25 +11,45 @@
 \usepackage[noadjust]{cite}
 \usepackage{graphicx}
 \usepackage[T1]{fontenc}
+%footnote
 \usepackage[flushmargin]{footmisc}
 \addtolength{\footnotesep}{1mm}
 \renewcommand{\thefootnote}{\textbf{\arabic{footnote}}}
+%enumeration
 \usepackage{float}
 \usepackage[none]{hyphenat}
 \usepackage{enumitem}
 \setlist[enumerate]{label=\arabic*-,leftmargin=*,align=left}
+%watermark
+\usepackage{draftwatermark}
+\SetWatermarkText{Draft: \today}
+\SetWatermarkColor[gray]{0.7}
+\SetWatermarkFontSize{0.5cm}
+\SetWatermarkAngle{90}
+\SetWatermarkHorCenter{1cm}
+%footer
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\fancyhead{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt} 
+\fancyfoot[C]{\footnotesize \thepage\ of \pageref{LastPage}}
+
 %=====================================================================================
 \begin{document}
 
-\title{A solution to Multiple Withdrawal Attack in ERC20 token}
+\title{A solution for Multiple Withdrawal Attack in ERC20 token}
 \author{
 	\IEEEauthorblockN{                  }
 	\IEEEauthorblockA{                  }
 }
 
 \maketitle
+\thispagestyle{fancy}
+\pagestyle{fancy}
 \IEEEpubidadjcol
 %=====================================================================================
+
 \input{sections/abstract}
 \IEEEpeerreviewmaketitle
 %=====================================================================================

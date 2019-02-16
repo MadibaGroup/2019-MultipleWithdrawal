@@ -1,37 +1,48 @@
+% !TEX root = ../main.tex
+
 \section{Background}
-\subsection{How attack happens}
-The attack could happen in case of race condition\footnote{Execution of two transactions at the same time with undesirable situation or priority.}, that allows a spender to transfer more tokens than the owner ever wanted. An attacker can execute \textit{transferFrom} function two times by front-running and transfer more token than authorized by \textit{approve} function. According to ERC20 standard:
+\subsection{How attack could happen}
+The attack could happen in case of race condition\footnote{Execution of two transactions at the same time with undesirable situation or priority.}. It allows a spender to transfer more tokens than the owner ever wanted. An attacker can execute \textit{transferFrom} function two times by front-running of \textit{approve} method and transferring more token than authorized. According to ERC20 standard:
 \begin{enumerate}[label=(\alph*)]
 	\item \textit{approve}\footnote{approve(address \textit{\_spender}, uint256 \textit{\_tokens})} function allows \textit{\_spender} to withdraw up to the \textit{\_value} amount of tokens from token pool of the approver. If this function is called again, it has to overwrites the current allowance with the new \textit{\_value}.
 	\item \textit{transferFrom}\footnote{transferFrom(address \textit{\_from}, address \textit{\_to}, uint256 \textit{\_tokens})} function grants required rights to the spender (account, wallet or other smart contract) for transferring \textit{\_value} amount of tokens from address \textit{\_from} to address \textit{\_to}.
 \end{enumerate}
-Usually, \textit{transferFrom} function will be called after \textit{approve} method. The is possible since the \textit{approve} method overrides current allowance regardless of whether spender already transferred any tokens or not. Moreover, transferred tokens are not trackable and only \textit{Transfer}\footnote{Transfer(address indexed \textit{\_from}, address indexed \textit{\_to}, uint256 \textit{\_value})} event will be logged (which is not sufficient in case of transferring tokens to a third parity). Here could be a possible attack scenario:
+Attacker can take advantage of gap between execution of \textit{approve} and \textit{transferFrom} functions since the \textit{approve} method overrides current allowance regardless of whether spender already transferred any tokens or not. Moreover, transferred tokens are not trackable and only \textit{Transfer}\footnote{Transfer(address indexed \textit{\_from}, address indexed \textit{\_to}, uint256 \textit{\_value})} event will be logged (which is not sufficient in case of transferring tokens to a third parity). Here could be a possible attack scenario:
 \begin{enumerate}
-	\item Alice allows Bob to transfer N tokens by calling \textit{approve(\_Bob, N)}.
+	\item Alice allows Bob to transfer N tokens on her behalf by calling \textit{approve(\_Bob, N)}.
 	\item After a while, Alice decides to change Bob's approval from N to M by executing \textit{approve(\_Bob, M)}.
 	\item Bob notices Alice’s second transaction before it was mined and quickly sends another transaction that runs \textit{transferFrom(\_Alice, \_Bob, N)}. This will transfer N Alice’s tokens to Bob.
 	\item Bob’s transaction will be executed before Alice’s transaction (because of higher transaction fee, miner’s policy or other prioritization techniques) and Bob front-runs Alice’s transaction.
 	\item Alice’s transaction will be executed after Bob’s and allows Bob to transfer more M tokens.
-	\item Bob successfully transferred N Alice’s tokens and gains ability of transferring another M tokens.
-	\item Before Alice notices that something went wrong, Bob calls \textit{transferFrom} method again and transfers M Alice’s tokens by executing \textit{transferFrom(\_Alice, \_Bob, M)}.\newline
+	\item Bob successfully transferred N Alice’s tokens before and gains ability of transferring another M tokens.
+	\item Before Alice notices that something went wrong, Bob calls \textit{transferFrom} method for the second time and transfers M Alice’s tokens by executing \textit{transferFrom(\_Alice, \_Bob, M)}.\newline
 \end{enumerate}
+
+In fact, Alice attempted to change Bob’s allowance from N to M, but she made it possible for Bob to transfer N+M of her tokens at most, while Alice never wanted to allow so many transfers to be occurred by Bob. It should be noted that the assumption here is to prevent Bob from withdrawing Alice’s tokens multiple times when allowance changes from N to M. If Bob could withdraw N tokens after Alice initial approval, this would be considered as legitimate transfer, since Alice has already approved it. In other words, it would be responsibility of Alice to make sure before approving anything to Bob. After that, Bob is allowed to transfer up to N tokens even right before allowance change from N to M. Accordingly, transaction \#4 in the below diagram would be considered as multiple withdrawal attack since Bob is able to move more M tokens in addition to already transferred N tokens in step \#3.
 \begin{figure}[h]
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_02.png}
-	\caption{Possible multiple withdrawal attack in ERC20 tokens.}
+	\caption{Possible multiple withdrawal attack in ERC20 tokens when Alice changes Bob's allowance from N to M. By front-running, Bob is able to move N+M tokens from Alice's token pool.}
 \end{figure}
-Alice attempted to change Bob’s allowance from N to M, but she made it possible for Bob to transfer N+M of her tokens at most, while Alice never wanted to allow so many transfers to be occurred by Bob. It should be noted that the assumption here is to prevent Bob from withdrawing Alice’s tokens multiple times. If he could withdraw N tokens after the initial Alice’s approval, this would be considered as legitimate transfer since Alice has already approved it. In other words, it is Alice responsibility to make sure before approving anything to Bob. 
 
-\subsection{How to mitigate the attack}
-We are looking for a solution to prevent multiple withdrawal (N+M) by Bob presuming that Alice has more than N+M tokens in her wallet. ERC20 authors advise owners to change spender allowance from N to 0 and then from 0 to M (instead of changing it directly from N to M). As discussed in "MiniMeToken soultion", changing allowance to non-zero values after setting to zero, will require tracking of transferred tokens by the spender. If we can not track transferred tokens, we would not be able to identify if any token has been transferred between execution of transactions. Although It would be possible to track transferred token through \textit{Transfer} events (logged by \textit{transferFrom}), it would not be easily trackable in case of transferring to a third-party---Alice>Bob, Bob>Carole => Alice>Carole. In short, the goal should be focused on preventing the attacker from transferring more tokens than allowed, instead of adjusting allowance or set it to 0. 
+\subsection{How to prevent the attack}
+Sustainable solutions have to prevent Bob from multiple withdrawal (N+M) presuming that Alice has more than N+M tokens in her wallet. One of these approaches can be implemented to prevent the attack:\newline
 
-\subsection{What are standard violation constraints}
-An important criterion in examining solutions is the standard constraints. We extracted necessary constraints from ERC20 specifications as summarized follows. This constraints must be satisfied by any sustainable solutions:
+\begin{enumerate}[label=\Alph*.]
+	\item \textbf{Prevention by owner:} This approach is recommended by ERC20 standard \cite{Ref08} and advises owners to change spender allowance from N to 0 and then from 0 to M (instead of set it directly from N to M). Changing allowance to non-zero values after setting to zero will not prevent the attack since the owner would not be able to distinguish how the allowance is set to zero. Was it because of her previous \textit{approve} transaction for changing allowance from N to 0?, Or it was set to 0 by \textit{transferFrom} method due to token transfers? Although It would be possible to track transferred token through \textit{Transfer} events---logged by \textit{transferFrom} method---tracking of tokens would not be easy in case of transferring to a third-party. For example, if Alice allows Bob and then Bob transfers tokens to Carole, \textit{Transfer} event creates a log showing Carole moved tokens from Alice. As discussed in "MiniMeToken" solution, this approach can not prevent the attack despite being recommended by the standard.
+	
+	\item \textbf{Prevention by \textit{approve} method:} In this approach, \textit{approve} method changes spender allowance from N to M atomically by using compare and set (CAS) pattern \cite{Ref06}. Comparison part of CAS requires knowledge of transferred tokens that reveals any transferred tokens in case of front-running. Hence, we can compare new allowance with transferred token and set it accordingly. Setting new allowance in \textit{approve} method must satisfy ERC20 constraint that says "If this function is called again it overwrites the current allowance with \textit{\_value}" \cite{Ref08}. This constraint prohibits any adjustments in allowance which makes the \textit{approve} method vulnerable. For example, considering front-running by Bob when Alice wants to change Bob allowance form 100 to 110, the \textit{approve} method can reveal 100 transferred tokens by Bob. However, based on ERC20 constraints, it must not adjust new allowance to 110-100=10, it has to set it to 110, which is allowing Bob for transferring 100+110=210 tokens in total. We implemented this approach in proposal 1 and as analyzed, securing \textit{approve} method can not prevent the attack while adhering constraints of the standard. The only feasible approach would be prevention it when transferring tokens.
+	
+	\item \textbf{Prevention by \textit{transferFrom} method:} This approach is based on ERC20 constraint that says "approve functions allows \textit{\_spender} to withdraw from your account multiple times, up to the \textit{\_value}". So, spender must not be able to transfer more than authorized tokens. That being said, \textit{transferFrom} method can be secured in a way that prevents M new token transfer in case of already transferred N tokens. By comparing transferred tokens in \textit{transferFrom} method, spender will be restricted for moving solely remained tokens. In case of trying to transfer token more than allowed, the transaction fails. For example, Alice's new transaction for increasing Bob allowance from 100 to 110, sets Bob allowance to 110. However, \textit{transferFrom} method does not allow Bob from transferring more than 10 tokens. We implanted this approach in proposal 2 and it prevents the attack effectively.
+\end{enumerate}
+
+\subsection{What are violation constraints}
+An important criterion for a solution is to adhere the specifications of ERC20 standard. Conforming with the standard, keeps new tokens backward compatible with already deployed smart contracts. So, smart contracts can interact with tokens as defined in the standard without raising any exception. We extracted defined constraints from ERC20 specifications \cite{Ref08} that must be satisfied by any sustainable solution:
 \begin{enumerate}
 	\item Calling \textit{approve} function has to overwrite current allowance with new allowance.
-	\item \textit{approve} method does not adjust allowance, it sets new allowance.
-	\item Transferring 0 values by \textit{transferFrom} method MUST be treated as normal transfers and fire the \textit{Transfer} event.
-	\item Introducing new methods violates ERC20 specifications and it should be avoided for having compatible token with already deployed smart contracts.
+	\item \textit{approve} method does not adjust allowance, it sets new value of allowance.
+	\item Transferring 0 values by \textit{transferFrom} method MUST be treated as normal transfers and fire the \textit{Transfer} event as non-zero transactions.
+	\item Introducing new methods violates ERC20 API and it has to be avoided for having compatible token with already deployed smart contracts.
 	\item Spender will be allowed to withdraw from approver account multiple times, up to the allowed amount.
-	\item Transferring initial allowed tokens is considered as legitimate transfer. It could happen right after approval or before changing it.
-	\item Race condition MUST not happen in any cases for preventing multiple withdrawal from approver account.\newline
+	\item Transferring initial allowed tokens is considered as legitimate transfer. It could happen right after approval or before changing allowance.
+	\item Race condition MUST not happen in any cases to prevent multiple withdrawal attack account.\newline
 \end{enumerate}
