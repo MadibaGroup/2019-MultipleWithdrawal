@@ -3,13 +3,13 @@
 \section{Proposals}
 \subsection{Proposal 1: Securing \textit{approve} method}
 As discussed in the previous section, a sustainable solution should use CAS pattern\cite{Ref06} to set new allowance atomically. This needs knowledge of transferred tokens that requires adding a new mapping variable to the token code. The code is still compatible with other smart contracts due to internal usage of the variable. Modified version of \textit{transferFrom} method can track transferred tokens by storing them in this new variable (\textit{transferred}):
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_14.png}
 	\caption{Modified version of \textit{transferFrom} for keeping track of transferred tokens per spender.}
 \end{figure}
 \noindent Similarly, a block of code is added to the \textit{approve} function to work in both cases with zero and non-zero allowances. Added code compares new allowance (passed as \textit{\_tokens} to the function) with the current allowance of the spender and already transferred token (highlighted as \textit{allowed[msg.sender][\_spender]} and \textit{transferred[msg.sender][\_spender]} respectively). Then it decides to increase or decrease current allowance based on this comparison. If the new allowance is less than initial allowance (sum of \textit{allowance} and \textit{transferred} variables), it denotes decreasing allowance, otherwise increasing allowance was intended.
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_15.png}
 	\caption{Added code block to \textit{approve} function to prevent the attack by comparing and setting new allowance atomically.}
@@ -38,7 +38,7 @@ As discussed in the previous section, a sustainable solution should use CAS patt
 	\item Bob would be able to transfer more 20 tokens (120 in total as Alice wanted).\newline
 \end{enumerate}
 \noindent In order to evaluate functionality of the new \textit{approve}/\textit{transferFrom} functions, we have implemented a standard ERC20 token (TKNv1\footnote{https://rinkeby.etherscan.io/address/0x8825bac68a3f6939c296a40fc8078\newline d18c2f66ac7}) along side proposed ERC20 token (TKNv2\footnote{https://rinkeby.etherscan.io/address/0xf2b34125223ee54dff48f71567d4b\newline 2a4a0c9858b}) on Rinkeby test network. Result of tests for different input values shows that TKNv2 can address multiple withdrawal attack by making front-running gain ineffective. Moreover, we compared these two tokens in term of gas consumption. TokenV2.\textit{approve} function uses almost the same amount of gas as TokenV1.\textit{approve}, however, gas consumption of TokenV2.\textit{transferFrom} is around 47\% more than TokenV1.\textit{transferFrom}. This difference is because of maintaining a new mapping variable for tracking transferred tokens:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_22.png}
 	\caption{Comparison of gas consumption between standard implementation of ERC20 token (TKNv1) and secured implemetation (TKNv2).}
@@ -60,13 +60,13 @@ As an alternative solution, we can think of securing \textit{transferFrom} metho
 	\item Bob noticed new allowance and tries to move new tokens by running \textit{transferFrom(\_Bob,70)}. Since he already transferred more than 70, his transaction fails and prevents multiple withdrawal. Additionally, Bob’s allowance stays as 70, although transferred tokens shows 100.
 \end{enumerate}
 Here allowance can be considered as maximum allowance. It indicates that Bob is eligible to transfer up to specified limit if he has not already transferred any tokens. This impression is completely in accordance with ERC20 standard that emphasizes:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_30.png}
 	\caption{ERC20 \textit{transferFrom} method that emphasizes on throwing exception if spender is not authorized to move tokens.}
 \end{figure}
 \noindent By this assumption, we secured \textit{transferFrom} method instead of \textit{approve} method by adding required codes to prevent more token transfer that allowed:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_31.png}
 	\caption{Securing \textit{transferFrom} method instead of \textit{approve} method.}

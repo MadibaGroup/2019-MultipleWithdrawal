@@ -6,11 +6,13 @@ Several solutions have been proposed by Ethereum community---mostly from develop
 
 \subsection{Enforcement by User Interface (UI)}
 ERC20 standard recommends to set allowance to zero before any non-zero values and enforce approval processing check in UI instead of smart contract:
-\begin{figure}[H]
+\begin{figure}[t!]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
 	\caption{Recommendation of ERC20 standard to mitigate multiple withdrawal attack by enforcement in UI.}
 \end{figure}
+
+
 \noindent If Alice does not use UI and connects directly to the blockchain, there would be a good chance of impacting by this attack. Even if she uses UI, this approach can not prevent the attack. As discussed on GitHub\cite{Ref14}, Bob still can transfer N+M tokens in the below scenario:
 \begin{enumerate}
 	\item Bob is allowed to transfer N Alice’s tokens.
@@ -31,7 +33,7 @@ Approving token transfer to non-upgradable smart contracts can be considered saf
 
 \subsection{MiniMeToken}
 MiniMeToken\cite{Ref15} followed ERC20 recommendation by setting allowance to zero before non-zero values. They added a line of code to their \textit{approve} method. The red clause (\textit{\_amount == 0}) allows setting of approval to 0 and blue condition checks allowance of \textit{\_spender} to be 0 before setting to non-zero values (i.e., If \textit{\_spender} allowance is 0 then allows non-zero values):
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_06.png}
 	\caption{MiniMeToken added code to \textit{approve} method for allowing non-zero allowance values if it is already set to zero.}
@@ -48,7 +50,7 @@ MiniMeToken\cite{Ref15} followed ERC20 recommendation by setting allowance to ze
 
 \subsection{MonolithDAO}
 MonolithDAO Token\cite{Ref12} implements two additional functions for allowance increase or decrease. The default \textit{approve} function has additional codes to enforce owner for setting allowance to zero before non-zero values. It allows non-zero spender's allowance if it is already set to zero. The below table shows functionality of \textit{approve} method based on current spender's allowance and passed input \textit{\_value} as new allowance:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_09.png}
 	\caption{Functionality of default \textit{approve} method in MonolithDAO token that enforces setting spender's allowance to zero before any non-zero values. It implements ERC20 recommendation for changes allowance from N to M in two steps (N$\rightarrow$0$\rightarrow$M).}
@@ -78,7 +80,7 @@ In order to set new allowance atomically, tracking of transferred tokens is requ
 	\item Bob’s allowance does not change and he cannot move more tokens than initially allowed.\newline
 \end{enumerate}
 \noindent Although this approach mitigates the attack, it prevents any further legitimate approvals as well. Considering a scenario that Alice rightfully wants to increase Bob’s allowance from N to M (two non-zero values). If Bob had already transferred number of tokens, Alice would not be able to change his approval. Because Bob's flag is set to \textit{true} and line 15 does not allow changing allowance by throwing an exception:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_33.png}
 	\caption{\textit{approve} method needs to be modifed by adding a line of code like \textit{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change.}
@@ -87,9 +89,9 @@ In order to set new allowance atomically, tracking of transferred tokens is requ
 
 \subsection{Keeping track of remaining tokens}
 This approach\cite{Ref18} is inspired by the previous solution and keeping track of remaining tokens instead of detecting transferred tokens. It uses modified version of data structure that used in the previous solution for storing residual tokens:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
-	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_29.png}
+	\includegraphics[width=0.9\linewidth]{figures/multiple_withdrawal_29.png}
 	\caption{Keeping track of remaining tokens.}
 \end{figure}
 \noindent At first, it seems to be a promising solution by setting approval to zero before non-zero values. However, the highlighted code in \textit{approve} method resembles the situation that we explained in "Enforcement by User Interface (UI)". It would not be possible for Alice to distinguish if any token transfer have occurred when changing allowance. To make it more clear, considering the below scenario:  
@@ -106,7 +108,7 @@ Someone may think of using \textit{Transfer} event to detect transferred tokens 
 
 \subsection{Changing ERC20 API}
 As advised by \cite{Ref03}, changing ERC20 API could secure \textit{approve} method by comparing current allowance of the spender and sets it to new value if it has not already been transferred any tokens. This allows atomic compare and set of spender allowance to make the attack impossible. So, it will need new overloaded \textit{approve} method with three parameters in addition to the standard \textit{approve} method with two parameters:
-\begin{figure}[H]
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_12.png}
 	\caption{Suggested ERC20 API Change by adding new \textit{approve} method with three parameters to compare and set new allowance atomically.}
