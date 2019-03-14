@@ -117,4 +117,28 @@ In order to use this new method, smart contracts have to update their codes to p
 \end{figure}
 
 \subsection{New token standards}
-After recognition of this security vulnerability, new standards like ERC233 \footnote{https://github.com/Dexaran/ERC223-token-standard}, ERC721\footnote{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md} and ERC777\footnote{https://eips.ethereum.org/EIPS/eip-777} were introduced to address the issue in addition to improving current functionality of ERC20 standard. They changed approval model and fixed some drawbacks which needed to be addressed in ERC20 (i.e., handle incoming transactions through a receiver contract, lost of funds in case of calling \texttt{transfer} function instead of \texttt{transferFrom}, etc). Nevertheless, migration from ERC20 to ERC223/ERC721/ERC777 would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of any trading platform listing ERC20 tokens. The goal here is to find a backward compatible solution instead of changing current ERC20 standard or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as target solutions.
+Most of the new token standards are introduced to improve current functionality of ERC20 tokens and do not address the attack (see Table~\ref{tab:erc}). Despite these enhancements, migration from ERC20 to new token standard would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of trading platform who already listed ERC20 tokens. Our goal is to find a backward compatible solution instead of changing current ERC20 standard or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as target solutions.
+\begin{table}
+\centering
+\begin{tabular}{|m{1.3cm}|m{6cm}|}
+	\hline\centering
+	Token Standard & A description of non-compliance with ERC20\\
+	\hline\hline\centering
+	ERC 223 \cite{Ref20} & It does not implement ERC20 \texttt{approve} + \texttt{transferFrom} mechanism by assuming it potentially insecure and inefficient.\\ 
+	\hline\centering 
+	ERC 667 \cite{Ref21} & It solves the problem of transfer function in ERC223 (i.e., The need to implement \texttt{onTokenTransfer} routing in the receiving contract). So, it does address the attack and uses the same code as ERC223 with a supplementary function.\\ 
+	\hline\centering 
+	ERC 721 \cite{Ref22} & Unlike ERC20 tokens that share the same characteristics, ERC721 tokens represent a non-fungible tokens (NFT) which are unique and non-interchangeable with each other. In addition to this differences, ERC721 does not implement \texttt{transfer} method of ERC20 standard and introduces a safe transfer function defined as \texttt{safeTransferFrom}.\\ 
+	\hline\centering
+	ERC 777 \cite{Ref23} & This standard does not use \texttt{transfer} and \texttt{transferFrom} methods of ERC20 and implements \texttt{send} and \texttt{operatorSend} instead. Moreover, costly \texttt{approve} + \texttt{transferFrom} mechanism is replaced by \texttt{tokensReceived} function. Therefore, it would not be backward compatible with ERC20 requirements. Nevertheless a token contract may implement both ERC20 and ERC777 in parallel which still requires attack mitigation.\\ 
+	\hline\centering 
+	ERC 827 \cite{Ref24} & It uses OpenZeppelin\cite{Ref10} ERC20 implementation and defines three new functions to allow users for transferring data in addition to value in ERC20 transactions. This feature enables ERC20 tokens to have the same functionality as Ether (transferring data and value). In fact, it extends functionality of ERC20 tokens and not addressing the attack. \\ 
+	\hline\centering 
+	ERC 1155 \cite{Ref25} & It is improved version of ERC721 by allowing each Token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes. ERC1155 aimed to remove the need to "approve" individual token contracts separately. Therefore, it does not implement any code to address the vulnerability\\ 
+	\hline\centering 
+	ERC 1377 \cite{Ref26} & It implements \texttt{approve} method with three parameters in addition to the ERC20 default \texttt{approve} with two inputs. Additionally, it uses OpenZeppelin\cite{Ref10} approach for increasing and decreasing approvals. We would consider it as mix of MiniToken and OpenZeppelin approaches that we discussed before.\\
+	\hline
+\end{tabular}
+\newline
+\caption{Comparison of ERC standards in terms of com pliancy with ERC20 specification \label{tab:erc}}
+\end{table}
