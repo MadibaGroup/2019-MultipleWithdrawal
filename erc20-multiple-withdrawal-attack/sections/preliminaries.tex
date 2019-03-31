@@ -47,7 +47,7 @@ An important criterion for a solution is to adhere the specifications of ERC20 s
 	\item Calling \texttt{approve} function has to overwrite current allowance with new allowance.
 	\item \texttt{approve} method does not adjust allowance, it sets new value of allowance.
 	\item Transferring 0 values by \texttt{transferFrom} method MUST be treated as normal transfers and fire the \texttt{Transfer} event as non-zero transactions.
-	\item Introducing new methods violate ERC20 API and MUST be avoided for having compatible token with already deployed smart contracts. In other words, introducing new secure methods that are not defined in the initial ERC20 standard make them unusable with already deployed smart contracts.
+	\item Introducing new methods violate ERC20 API and MUST be avoided for having compatible token with already deployed smart contracts. In other words, introducing new secure methods that are not defined in the initial ERC20 API, make them unusable with already deployed smart contracts. Therefore, smart contracts cannot use them to prevent the attack.
 	\item Spender will be allowed to withdraw from approver account multiple times, up to the allowed amount.
 	\item Transferring initial allowed tokens is considered as legitimate transfer. It could happen right after approval or before changing allowance.
 	\item Race condition MUST not happen in any case to prevent multiple withdrawal from the account.
