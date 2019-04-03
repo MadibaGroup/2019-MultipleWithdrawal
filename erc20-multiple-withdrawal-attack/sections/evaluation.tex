@@ -35,6 +35,13 @@ MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to ze
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_06.png}
 	\caption{MiniMeToken added code to \texttt{approve} method for allowing non-zero allowance values if it is already set to zero.\label{fig:mini}}
 \end{figure}
+\begin{comment}
+// To change the approve amount you first have to reduce the addresses`
+//  allowance to zero by calling `approve(_spender,0)` if it is not
+//  already 0 to mitigate the race condition described here:
+//  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+require((_amount == 0) || (allowed[msg.sender][_spender] == 0));
+\end{comment}
 \noindent Similar to \textsf{Enforcement by User Interface (UI)} and as explained there, this solution will not prevent Bob from transferring N+M tokens. Because Alice would not be able to distinguish whether N tokens have been already transferred or not as described in the below scenario:
 \begin{enumerate}
 	\item Alice decides to set Bob’s allowance to 0.
@@ -79,13 +86,19 @@ In order to set new allowance atomically, tracking of transferred tokens is requ
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_33.png}
-	\caption{\texttt{approve} method needs to be modifed by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change.\label{fig:det}}
+	\caption{\texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change.\label{fig:det}}
 \end{figure}
+\begin{comment}
+function approve(address _spender, uint _value) public returns (bool success) {
+	require((_value == 0) || (allowed[msg.sender][_spender].amount == 0 && !allowed[msg.sender][_spender].used));
+	allowed[msg.sender][_spender].amount=_value;
+	Approval(msg.sender,_spender,_value);
+	return true;
+}
+\end{comment}
 \noindent Even setting allowance to 0 and then to M, does not flip the flag to \texttt{false} (There is no code for it in the \texttt{approve} method). So, It keeps Bob’s allowance locked down and blocked further legitimate allowances.
 
-In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values event if tokens have been already transferred. It resembles the initial state of allowance similar when nothing was transferred. For example, considering front-running by Bob, before new allowance change from N to 0 by Alice. Bob's flag turns to \texttt{true} by \texttt{transferFrom} method and turns to \texttt{false} by \texttt{approve} method afterwards. Now if Alice wants to set allowance from 0 to M, Bob's flag is \texttt{false} and his allowance is zero. This is similar to the situation that he did not transfer any tokens. So, Alice cannot distinguish whether Bob moved any token or not. Setting new allowance will allow Bob to transfer more tokens than Alice wanted. Therefore, adding new code makes attack mitigation functionality ineffective.
-
-In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new variable to track transferred tokens.\newline
+In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values event if tokens have been already transferred. It resembles the initial state of allowance similar when nothing was transferred. For example, considering front-running by Bob, before new allowance change from N to 0 by Alice. Bob's flag turns to \texttt{true} by \texttt{transferFrom} method and turns to \texttt{false} by \texttt{approve} method afterwards. Now if Alice wants to set allowance from 0 to M, Bob's flag is \texttt{false} and his allowance is zero. This is similar to the situation that he did not transfer any tokens. So, Alice cannot distinguish whether Bob moved any token or not. Setting new allowance will allow Bob to transfer more tokens than Alice wanted. Therefore, adding new code makes attack mitigation functionality ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new variable to track transferred tokens.\newline
 
 \subsection{Keeping track of remaining tokens}
 This approach\cite{Ref18} is inspired by the previous solution and keeping track of remaining tokens instead of detecting transferred tokens. \texttt{approve} method uses these variables to set allowance accordingly. It uses modified version of data structure that used in the previous solution for storing residual tokens (see Figure~\ref{fig:track}).
@@ -94,6 +107,46 @@ This approach\cite{Ref18} is inspired by the previous solution and keeping track
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_29.png}
 	\caption{Keeping track of remaining tokens by introducing new data structure.\label{fig:track}}
 \end{figure}
+\begin{comment}
+struct Allowance {
+	uint initial;
+	uint residual;
+}
+
+mapping(address => mapping(address => Allowance)) public allowances;
+
+function approve(address spender, uint amount) public returns (bool) {
+	Allowance storage _allowance = allowances[msg.sender][spender];
+	
+	// This test should not be necessary.
+	uint spent = _allowance.initial > _allowance.residual
+	? _allowance.initial - _allowance.residual
+	: 0;
+	
+	_allowance.initial = amount;
+	_allowance.residual = spent < amount ? amount - spent : 0;
+	
+	Approval(msg.sender, spender, _allowance.residual);
+	
+	return true;
+}
+
+function allowance(address holder, address spender) public view returns (uint) {
+	return allowances[holder][spender].residual;
+}
+
+function transferFrom(address holder, uint amount) public returns (bool) {
+	uint residual = allowance(holder, msg.sender);
+	
+	require(amount <= residual);
+	
+	allowances[holder][msg.sender].residual = residual - amount;
+	
+	// ... do the token transfer
+	
+	return true;
+}
+\end{comment}
 \noindent At first look, it seems to be a promising solution by setting approval to zero before non-zero values. However, the highlighted code in \texttt{approve} method resembles the situation that we explained in "Enforcement by User Interface (UI)". In case of front-running, both \texttt{initial} and \texttt{residual} variables will be zero and it would not be possible for Alice to distinguish if any token transfer have occurred due to her allowance change or Bob token transfer. To make it more clear, considering the below scenario:  
 \begin{enumerate}
 	\item Bob’s allowance is initially zero (\texttt{allowances[\_Alice][\_Bob].initial=0}) and his residual is zero as well (\texttt{allowances[\_Alice][\_Bob].residual=0}).
@@ -115,7 +168,26 @@ In order to use this new method, smart contracts have to update their codes to p
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_12.png}
 	\caption{Suggested ERC20 API Change by adding new \texttt{approve} method with three parameters to compare and set new allowance atomically.\label{fig:api}}
 \end{figure}
+\begin{comment}
+// Standard ERC20 Approve method
+function approve(address _spender, uint256 _tokens) public returns (bool success) 
+{
 
+allowed[msg.sender][_spender] = _tokens;
+emit Approval(msg.sender, _spender, _tokens);
+return true;
+}
+
+// Atomic "Compare and Set" Approve method
+function approve(address _spender, uint256 _currentValue, uint256 _newValue) returns (bool success)
+{
+if(allowed[msg.sender][_spender] != _currentValue) {return false};
+allowed[msg.sender][_spender] = _newValue;
+emit Approval(msg.sender, _spender, _newValue);
+emit Approval(msg.sender, _spender, _newValue, _currentValue);
+return true;
+}
+\end{comment}
 \subsection{New token standards}
 Most of the new token standards are introduced to improve current functionality of ERC20 tokens and do not address the attack (see Table~\ref{tab:erc}). Despite these enhancements, migration from ERC20 to new token standard would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of trading platform who already listed ERC20 tokens. Our goal is to find a backward compatible solution instead of changing current ERC20 standard or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as target solutions.
 \begin{table}
