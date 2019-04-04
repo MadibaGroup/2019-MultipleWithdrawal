@@ -28,7 +28,7 @@ As suggested by Ethereum Foundation\cite{Ref05}, we can boil down ERC20 standard
 \subsection{Approving trusted parties}
 Approving token transfer to parties that we trust, reduces risk of impacting by the attack. Non-upgradable smart contracts or trusted accounts can be considered safe for delegating token transfers on behalf of us. Because they do not contain any logic to take advantage of this vulnerability. However, upgradable smart contracts may add new code to their new versions that needs code re-verification before approving token transfers. Similarly, approving token transfer to people that we trust could be considered as a mitigation plan. Nonetheless, this solution would have limited use cases and it could not be considered as a comprehensive prevention mechanism to mitigate the attack.
 
-\subsection{MiniMeToken}
+\subsection{MiniMeToken}\label{sec:MiniMeToken}
 MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to zero before non-zero values. The owner needs to execute two transactions, setting allowance from N to zero and then from 0 to M. MiniMeToken added a new line of code to the \texttt{approve} method for preventing the attack by enforcing this rule. The red clause in line 225 (\texttt{\_amount == 0}) allows setting of approval to 0 and blue condition checks allowance of \texttt{\_spender} to be 0 before setting to non-zero values (\ie If \texttt{\_spender} allowance is 0 then allows non-zero values-See Figure~\ref{fig:mini}).
 \begin{figure}[t]
 	\centering
