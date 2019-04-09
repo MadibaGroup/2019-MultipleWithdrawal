@@ -5,7 +5,13 @@
 Several solutions have been proposed by Ethereum community---mostly from developers on GitHub\cite{Ref07}---to address the attack. There would be some trad-offs for each solution that needs to be evaluated in term of conforming with standard constraints and attack mitigation. We have examined mitigation approach of each solution and explained possible ERC20 constraint violation.
 
 \subsection{Enforcement by User Interface (UI)}
+
+% Jeremy: We must define UI more specifically
+
 ERC20 standard recommends to set allowance to zero before any non-zero values and enforce approval processing check in UI instead of smart contract (see Figure~\ref{fig:uie}). If Alice does not use UI and connects directly to the blockchain, there would be a good chance of impacting by this attack. Even if she uses UI, this approach can not prevent the attack \cite{Ref14} and Bob can still transfer N+M tokens in the below scenario:
+
+% Jeremy: Even with logging events, if Bob sends to Carol, then Alice won't necessarily pause before step 5
+
 \begin{enumerate}
 	\item Bob is allowed to transfer N Alice’s tokens.
 	\item Alice publishes a new transaction that changes Bob’s allowance from N to 0.
@@ -42,6 +48,9 @@ MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to ze
 //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
 require((_amount == 0) || (allowed[msg.sender][_spender] == 0));
 \end{comment}
+
+% Jeremy: We require it to be zero but don't know if it is zero because it was reset or because it was drained
+
 \noindent Similar to \textsf{Enforcement by User Interface (UI)} and as explained there, this solution will not prevent Bob from transferring N+M tokens. Because Alice would not be able to distinguish whether N tokens have been already transferred or not as described in the below scenario:
 \begin{enumerate}
 	\item Alice decides to set Bob’s allowance to 0.
