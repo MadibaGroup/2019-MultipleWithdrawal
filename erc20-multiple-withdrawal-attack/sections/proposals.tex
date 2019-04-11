@@ -4,7 +4,7 @@
 
 By this point, we have discussed 10 solutions to the multiple withdrawal attack and we evaluated them in terms of compatibility with the standard and attack mitigation (recall the summary in Table~\ref{tab:comp}). Since none of them precisely satisfy the constraints of ERC20 standard, we now propose two new solutions to mitigate the attack.
 
-\subsection{Proposal 1: Securing \texttt{approve} method}
+\subsection{Proposal 1: Securing \texttt{approve} method}\label{sec:proposal1}
 
 By implementing CAS \cite{Ref06} in \texttt{approve} method, new allowance can be set atomically after comparing with transferred tokens. This tracking requires adding a new variable to \texttt{transferFrom} method (see Figure~\ref{fig:transfer1}). Since this is an internal variable, it is not visible to already deployed smart contracts and keeps the \texttt{transferFrom} function compatible. Similarly, a block of code is added to the \texttt{approve} function (see Figure~\ref{fig:approve1}) to work in both cases with zero and non-zero allowances. Added code to the \texttt{approve} function, compares new allowance---passed as \texttt{\_tokens} argument to the function---with the current allowance of the spender and already transferred tokens---highlighted as \texttt{allowed[msg.sender][\_spender]} and \texttt{transferred[msg.sender][\_spender]}. Then it decides to increase or decrease current allowance based on this comparison. If the new allowance is less than initial allowance---sum of \texttt{allowance} and \texttt{transferred} variables---it denotes decreasing of allowance, otherwise increasing of allowance was intended. Modified \texttt{approve} function prevents the attack in either increasing or decreasing of the allowance.
 
@@ -112,7 +112,7 @@ In summary, we could use CAS pattern to implement a secure \texttt{approve} meth
 \end{enumerate}
 Therefore, \texttt{approve} method has to adjust the allowance according to transferred tokens, not based on passed input values to the \texttt{approve} method. Overall, there is no solution to secure \texttt{approve} method while adhering specification of ERC20 standard.
 
-\subsection{Proposal 2: Securing \texttt{transferFrom} method}
+\subsection{Proposal 2: Securing \texttt{transferFrom} method}\label{sec:proposal2}
 
 As an alternative solution to Proposal 1, we can think of securing \texttt{transferFrom} method instead of \texttt{approve} function. As specified by ERC20 standard (see figure~\ref{fig:standard}), the goal here is to prevent spender from transferring more tokens than allowed. Based on this assumption, we should not consider allowance as the main prevention factor. Transferred tokens can be considered as the main variable in our calculations. For example in the below situation, we can prevent the attack by securing \texttt{transferFrom} method and keeping \texttt{approve} function untouched to set allowance as specified by the token holder:
 \begin{enumerate}
