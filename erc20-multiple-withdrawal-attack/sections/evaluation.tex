@@ -2,13 +2,13 @@
 
 \section{Evaluating Proposed Solutions}\label{sec:eval}
 
-Several solutions have been proposed by Ethereum community---mostly from developers on GitHub\cite{Ref07}---to address the attack. There would be some trad-offs for each solution that needs to be evaluated in term of conforming with standard constraints and attack mitigation. We have examined mitigation approach of each solution and explained possible ERC20 constraint violation.
+Several solutions have been proposed by Ethereum community---mostly from developers on GitHub\cite{Ref07}---to address the attack. There would be some trad-offs for each solution that needs to be evaluated in term of conforming with constraints of the standard and attack mitigation. We have examined each solution and explained possible ERC20 constraint violation.
 
-\subsection{Enforcement by User Interface (UI)}
+\subsection{Enforcement by User Interface (UI)}\label{sec:enfui}
 
 % Jeremy: We must define UI more specifically
 
-ERC20 standard recommends to set allowance to zero before any non-zero values and enforce approval processing check in UI instead of smart contract (see Figure~\ref{fig:uie}). If Alice does not use UI and connects directly to the blockchain, there would be a good chance of impacting by this attack. Even if she uses UI, this approach can not prevent the attack \cite{Ref14} and Bob can still transfer N+M tokens in the below scenario:
+ERC20 standard recommends to (1) set allowance to zero before any non-zero values and (2) enforce approval processing check in UI instead of smart contract (see screenshot~\ref{fig:uie}). This approach can not prevent the attack in the below scenario \cite{Ref14}:
 
 % Jeremy: Even with logging events, if Bob sends to Carol, then Alice won't necessarily pause before step 5
 
@@ -21,7 +21,7 @@ ERC20 standard recommends to set allowance to zero before any non-zero values an
 	\item Alice’s second transaction is mined, Bob now is allowed to move M Alice’s tokens.
 	\item Bob transfers M Alice’s tokens and in total N+M.\newline
 \end{enumerate}
-At step 3, Bob is able to transfer N tokens and consequently his allowance becomes 0 by \texttt{transferFrom} method. This is considered as a legitimate transaction since Alice has already approved it. The issue occurs after Alice’s new transaction in step 5 to set Bob's allowance to M. In case of front-running by Bob, Alice needs to check Bob’s allowance for the second time before setting any new value. However, she finds out Bob’s allowance 0 in either case. In other words, she can not distinguish whether Bob’s allowance is set to 0 because of her transaction in step 2 or Bob already transferred tokens by front-running is step 3. Someone may point out that Alice notices this by checking \texttt{Transfer} event logged by \texttt{transferFrom} function. However, if Bob had transferred tokens to someone else (like Carol), then \texttt{Transfer} event will not be linked to Bob, and, if Alice’s account is busy and many people are allowed to transfer from it, Alice may not be able to distinguish this transfer from a legitimate one performed by someone else. Overall, this solution does not prevent the attack while tries to follow ERC20 recommendations for setting Bob’s allowance to zero before any non-zero value. Hence, enforcement should be considered at contract level not UI to remove the gap between transactions and mitigate the attack. Interestingly, OpenZeppelin example implements a workaround in contract level that makes it inconsistent with the recommendations of ERC20.
+At step 3, Bob is able to transfer N tokens and consequently his allowance becomes 0 by \texttt{transferFrom} method. This is considered as a legitimate transaction since Alice has already approved it. The issue occurs after Alice’s new transaction in step 5 to set Bob's allowance to M. In case of front-running by Bob, Alice needs to check Bob’s allowance for the second time before setting any new value. However, she finds out Bob’s allowance 0 in either case. In other words, she can not distinguish whether Bob’s allowance is set to 0 because of her transaction in step 2 or Bob already transferred tokens by front-running is step 3. Someone may point out that Alice notices this by checking \texttt{Transfer} event logged by \texttt{transferFrom} function. However, if Bob had transferred tokens to someone else (like Carol), then \texttt{Transfer} event will not be linked to Bob, and, if Alice’s account is busy and many people are allowed to transfer from it, Alice may not be able to distinguish this transfer from a legitimate one performed by someone else. Overall, this recommendation does not prevent the attack while tries to follow ERC20 recommendations for setting Bob’s allowance to zero before any non-zero value. Hence, enforcement should be considered at contract level not UI to remove the gap between transactions and mitigate the attack. Interestingly, OpenZeppelin example implements a workaround in contract level that makes it inconsistent with the standard UI recommendations.
 \begin{figure}[t!]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
@@ -29,13 +29,11 @@ At step 3, Bob is able to transfer N tokens and consequently his allowance becom
 \end{figure}
 
 \subsection{Minimum viable token}
-As suggested by Ethereum Foundation\cite{Ref05}, we can boil down ERC20 standard to a very basic functionalities by implementing only essential methods. This prevents effecting of the attack by skipping implementation of vulnerable functions. While removing \texttt{approve} and \texttt{transferFrom} functions prevent the attack, it makes the token partially-ERC20-compliant. Golem Network Token (GNT\footnote{https://etherscan.io/address/0xa74476443119A942dE498590Fe1f2454d7\newline D4aC0d\#code}) is one of these examples since it does not implement the \texttt{approve}, \texttt{allowance} and \texttt{transferFrom} functions. According to ERC20 specifications\cite{Ref08}, these methods are not OPTIONAL and must be implemented. Moreover, ignoring them will cause failed function calls from standard smart contracts that expect to interoperate with these methods. Therefore, we would not consider it as a backward compatible solution although mitigates the attack by removing vulnerable functions.
+As suggested by Ethereum Foundation\cite{Ref05}, we can boil down ERC20 standard to a very basic functionalities by implementing only essential methods. This prevents effecting of the attack by skipping implementation of vulnerable functions. While removing \texttt{approve} and \texttt{transferFrom} functions prevent the attack, it makes the token partially-ERC20-compliant. Golem Network Token (GNT\footnote{https://etherscan.io/address/0xa74476443119A942dE498590Fe1f2454d7\newline D4aC0d\#code}) is one of these examples since it does not implement the \texttt{approve}, \texttt{allowance} and \texttt{transferFrom} functions. According to ERC20 specifications\cite{Ref08}, these methods are not OPTIONAL and must be implemented. Moreover, ignoring them will cause failed function calls from standard smart contracts that expect to interoperate with these methods. Therefore, we would not consider it as a backward compatible solution although mitigates the attack.
 
 \subsection{Approving trusted parties}
-Approving token transfer to parties that we trust, reduces risk of impacting by the attack. Non-upgradable smart contracts or trusted accounts can be considered safe for delegating token transfers on behalf of us. Because they do not contain any logic to take advantage of this vulnerability. However, upgradable smart contracts may add new code to their new versions that needs code re-verification before approving token transfers. Similarly, approving token transfer to people that we trust could be considered as a mitigation plan. Nonetheless, this solution would have limited use cases and it could not be considered as a comprehensive prevention mechanism to mitigate the attack.
+Approving token transfer to parties that we trust, reduces risk of impacting by the attack. Non-upgradable smart contracts or trusted accounts can be considered safe for delegating token transfers on behalf of us. Because they do not contain any logic to take advantage of this vulnerability. However, upgradable smart contracts may add new code to their new versions that needs code re-verification before approving token transfers. Similarly, approving token transfer to people that we trust could be considered as a mitigation plan. Nonetheless, this solution would have limited use cases and it could not be considered as a universal preventive approach.
 
-\subsection{MiniMeToken}\label{sec:MiniMeToken}
-MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to zero before non-zero values. The owner needs to execute two transactions, setting allowance from N to zero and then from 0 to M. MiniMeToken added a new line of code to the \texttt{approve} method for preventing the attack by enforcing this rule. The red clause in line 225 (\texttt{\_amount == 0}) allows setting of approval to 0 and blue condition checks allowance of \texttt{\_spender} to be 0 before setting to non-zero values (\ie If \texttt{\_spender} allowance is 0 then allows non-zero values-See Figure~\ref{fig:mini}).
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_06.png}
@@ -48,10 +46,8 @@ MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to ze
 //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
 require((_amount == 0) || (allowed[msg.sender][_spender] == 0));
 \end{comment}
-
-% Jeremy: We require it to be zero but don't know if it is zero because it was reset or because it was drained
-
-\noindent Similar to \textsf{Enforcement by User Interface (UI)} and as explained there, this solution will not prevent Bob from transferring N+M tokens. Because Alice would not be able to distinguish whether N tokens have been already transferred or not as described in the below scenario:
+\subsection{MiniMeToken}\label{sec:MiniMeToken}
+MiniMeToken\cite{Ref15} follows ERC20 recommendation for setting allowance to zero before non-zero values. Token holder needs to execute two transactions, setting allowance from N to zero and then from 0 to M. MiniMeToken added a new line of code to the \texttt{approve} method for preventing the attack by enforcing this rule (see Figure~\ref{fig:mini}). The red clause in line 225 (\texttt{\_amount == 0}) allows setting of approval to 0 and blue condition checks allowance of \texttt{\_spender} to be 0 before setting to non-zero values (\ie If \texttt{\_spender} allowance is 0 then allows non-zero values). Similar to~\ref{sec:enfui}, this solution will not prevent Bob from transferring N+M tokens. Because Alice would not be able to distinguish whether N tokens have been already drained by Bob or not. Considering the below scenario:
 \begin{enumerate}
 	\item Alice decides to set Bob’s allowance to 0.
 	\item Bob front-runs Alice’s transaction and his allowance sets to 0 after transferring N tokens.
@@ -61,8 +57,17 @@ require((_amount == 0) || (allowed[msg.sender][_spender] == 0));
 	\item Bob is able to transfer new M tokens and N+M in total.
 \end{enumerate}
 
+
+% Jeremy: We require it to be zero but don't know if it is zero because it was reset or because it was drained
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_09.png}
+	\caption{Functionality of default \texttt{approve} method in MonolithDAO token that enforces setting spender's allowance to zero before any non-zero values. It implements ERC20 recommendation for changes allowance from N to M in two steps (N$\rightarrow$0$\rightarrow$M).\label{fig:dao}}
+\end{figure}
+
 \subsection{MonolithDAO}
-MonolithDAO Token\cite{Ref12} implements two additional functions for allowance increase or decrease. The default \texttt{approve} function has additional codes to enforce the owner for setting allowance to zero before non-zero values. It allows non-zero spender's allowance if it is already set to zero. The below table shows functionality of \texttt{approve} method based on current spender's allowance and passed input \texttt{\_value} as new allowance (see Figure~\ref{fig:dao}). \noindent If the current spender’s allowance is non-zero, \texttt{decreaseApproval}\footnote{\texttt{decreaseApproval(address \_spender, uint \_subtractedValue)}} and \texttt{increaseApproval}\footnote{\texttt{increaseApproval(address \_spender, uint \_addedValue)}} functions have to be used for decreasing or increasing the allowance. Using these two functions can prevent race condition and mitigate the attack as explained below:
+MonolithDAO Token\cite{Ref12} implements two additional functions for allowance increase\footnote{\texttt{increaseApproval(address \_spender, uint \_addedValue)}} or decrease\footnote{\texttt{decreaseApproval(address \_spender, uint \_subtractedValue)}}. The default \texttt{approve} function has additional codes to enforce the owner for setting allowance to zero before non-zero values. It allows non-zero spender's allowance if it is already set to zero (see Figure~\ref{fig:dao}). If the current spender’s allowance is non-zero, \texttt{decreaseApproval} and \texttt{increaseApproval} functions have to be used instead of standard \texttt{approve} method as explained below:
 \begin{enumerate}
 	\item Alice allows Bob to transfer N tokens by calling \texttt{approve(\_Bob, N)}. Alice used the default \texttt{approve} function consciously since current Bob’s allowance is 0. So, he checked Bob's allowance before calling \texttt{approve} method.
 	\item After a while, Alice decides to decrease Bob’s approval by M and runs \texttt{decreaseApproval(\_Bob, M)}.
@@ -71,17 +76,13 @@ MonolithDAO Token\cite{Ref12} implements two additional functions for allowance 
 	\item Alice’s transaction is mined after Bob’s transaction and tries to decrease Bob’s allowance by M. If Bob had already transferred more than M tokens, new Bob’s allowance becomes negative and it fails the transaction. So, the transaction does not change Bob’s remaining allowance and he would be able to transfer the rest (which is legitimate transfer since Alice has already approved it). If Bob had transferred less than M tokens, the new allowance will be applied and reduces Bob’s allowance by M.
 \end{enumerate}
 \noindent Although these two new complementary functions prevent the attack, they have not been defined in the initial specifications of ERC20 standard. Therefore, they can not be used by smart contracts that are already deployed on the Ethereum network and still call \texttt{approve} method for setting new allowance---and not \texttt{increaseApproval} or \texttt{decreaseApproval}. Moreover, ERC20 specifications does not define any increase or decrease of allowance. It only allows setting new allowances without adjustment. For example, if Alice has approved Bob for 100 tokens and wants to set it to 80, the new allowance should be 80 while using decrease methods will set it to 20 (100 - 80 = 20). Comparatively, increase method sets new allowance to 180 while it has to set it to 80 again to be in-compliant with ERC20 specification. For these reasons, this solution would not be compatible with ERC20 standard and only is usable if approver or smart contract are aware of these supplementary methods.
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_09.png}
-	\caption{Functionality of default \texttt{approve} method in MonolithDAO token that enforces setting spender's allowance to zero before any non-zero values. It implements ERC20 recommendation for changes allowance from N to M in two steps (N$\rightarrow$0$\rightarrow$M).\label{fig:dao}}
-\end{figure}
+
 
 \subsection{Alternate approval function}
 Another suggestion\cite{Ref16} is to move security checks to another function called \texttt{safeApprove}\footnote{\texttt{safeApprove(address \_spender, uint256 \_currentValue, uint256 \_value}} that compare current and new allowance value and sets it if has not been already changed. By using this function, Alice uses the standard \texttt{approve} function to set Bob’s allowance to 0 and for new approvals, she has to use \texttt{safeApprove} function. \texttt{safeApprove} takes the current expected approval amount as input parameter and calls \texttt{approve} method if previous allowance is equal to the current expected approval. By using this function, Alice will have one step more to read the current allowance and pass it to the new \texttt{safeApprove} method. Although this approach mitigates the attack by using CAS pattern\cite{Ref06}, however, it is not backward compatible with already implemented smart contracts due to their unawareness of this new complementary function. In other words, the new \texttt{safeApprove} method is not defined in ERC20 standard and existing smart contracts would not be able to use this new safety feature.
 
 \subsection{Detecting token transfers}
-In order to set new allowance atomically, tracking of transferred tokens is required to detect token transfers before setting new allowances. If \texttt{approve} method reveals any transferred tokens due to front running, it throws an exception without setting new allowance. As suggested by \cite{Ref17}, a flag can be used to detect whether any token has been transferred or not. \texttt{transferFrom} method sets this flag to \texttt{true} in case of any token transfer. \texttt{approve} method checks the flag to be \texttt{false} before allowing new approvals. This approach requires new data structure to keep track of used/transferred tokens for each spender. It can prevent race condition as described below:
+In order to set new allowance atomically, tracking of transferred tokens is required to detect token transfers before setting new allowances. If \texttt{approve} method reveals any transferred tokens due to front running, it throws an exception without setting new allowance. As suggested by \cite{Ref17}, a flag can be used to detect whether any token has been transferred or not. \texttt{transferFrom} method sets this flag to \texttt{true} in case of any token transfer. \texttt{approve} method checks the flag to be \texttt{false} before allowing new approvals. This approach requires new data structure to keep track of used/transferred tokens for each spender. It can prevent front-running in the below scenario:
 \begin{enumerate}
 	\item Alice runs \texttt{approve(\_Bob, N)} to allow Bob for transferring N tokens. Since Bob’s initial allowance is 0 and his corresponding flag=\texttt{false}, then sanity check passes and Bob’s allowance sets to N (line 16).
 	\item Alice decides to set Bob’s allowance to 0 by executing \texttt{approve(\_Bob, 0)}.
@@ -95,7 +96,7 @@ In order to set new allowance atomically, tracking of transferred tokens is requ
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_33.png}
-	\caption{\texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change.\label{fig:det}}
+	\caption{\texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change. However, this change makes attack mitigation ineffective.\label{fig:det}}
 \end{figure}
 \begin{comment}
 function approve(address _spender, uint _value) public returns (bool success) {
@@ -105,9 +106,7 @@ function approve(address _spender, uint _value) public returns (bool success) {
 	return true;
 }
 \end{comment}
-\noindent Even setting allowance to 0 and then to M, does not flip the flag to \texttt{false} (There is no code for it in the \texttt{approve} method). So, It keeps Bob’s allowance locked down and blocked further legitimate allowances.
-
-In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values even if tokens have been already transferred. Considering front-running by Bob in the below scenario:
+\noindent Even setting allowance to 0 and then to M, does not flip the flag to \texttt{false} (There is no code for it in the \texttt{approve} method). So, It keeps Bob’s allowance locked down and blocked further legitimate allowances. In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values even if tokens have been already transferred. Considering front-running by Bob in the below scenario:
 \begin{enumerate}
 	\item Alice changes Bob's allowance from N to 0.
 	\item Bob transfers N tokens before allowance change and his \texttt{used} flag turns to \texttt{true}.
@@ -164,7 +163,7 @@ function transferFrom(address holder, uint amount) public returns (bool) {
 	return true;
 }
 \end{comment}
-\noindent At first look, it seems to be a promising solution by setting approval to zero before non-zero values. However, the highlighted code in \texttt{approve} method resembles the situation that we explained in "Enforcement by User Interface (UI)". In case of front-running, both \texttt{initial} and \texttt{residual} variables will be zero and it would not be possible for Alice to distinguish if any token transfer have occurred due to her allowance change or Bob token transfer. To make it more clear, considering the below scenario:  
+\noindent At the first look, it seems to be a promising solution by setting approval to zero before non-zero values. However, the highlighted code in \texttt{approve} method resembles the situation that is explained in~\ref{sec:enfui}. In case of front-running, both \texttt{initial} and \texttt{residual} variables will be zero and it would not be possible for Alice to distinguish if any token transfer have occurred due to her allowance change or Bob token transfer. To make it more clear, considering the below scenario:  
 \begin{enumerate}
 	\item Bob’s allowance is initially zero (\texttt{allowances[\_Alice][\_Bob].initial=0}) and his residual is zero as well (\texttt{allowances[\_Alice][\_Bob].residual=0}).
 	\item Alice allows Bob to transfer N tokens that makes \texttt{allowances[\_Alice][\_Bob].initial=N} and \texttt{allowances[\_Alice][\_Bob].residual=N}.
@@ -174,7 +173,7 @@ function transferFrom(address holder, uint amount) public returns (bool) {
 	\item Considering no token transfer by Bob, Alice approves Bob for spending new M tokens.
 	\item Bob is able to transfer new M tokes in addition to initial N tokens.\newline
 \end{enumerate}
-Someone may think of using \texttt{Transfer} event to detect transferred tokens or checking approver balance to see any transferred tokens. As explained in "Enforcement by User Interface (UI)", using \texttt{Transfer} event is not sufficient in case of transferring tokens to a third party. Checking approver balance also would not be an accurate way if the contract is busy and there are lot of transfers. So, it would be difficult for the approver to detect legitimate from non-legitimate tokens transfers. Overall, this approach cannot prevent the attack.
+Someone may think of using \texttt{Transfer} event to detect transferred tokens or checking approver balance to see any transferred tokens. As explained in~\ref{sec:enfui}, using \texttt{Transfer} event is not sufficient in case of transferring tokens to a third party. Checking approver balance also would not be an accurate way if the contract is busy and there are lot of transfers. So, it would be difficult for the approver to detect legitimate from non-legitimate tokens transfers. Overall, this approach cannot prevent the attack.
 
 \subsection{Changing ERC20 API}
 As advised by \cite{Ref03}, changing ERC20 API could secure \texttt{approve} method by comparing current allowance of the spender and sets it to new value if he has not already been transferred any tokens. This allows atomic compare and set of spender allowance to make the attack impossible. This approach needs a new overloaded \texttt{approve} method with three parameters in addition to the standard \texttt{approve} method with two parameters (see Figure~\ref{fig:api}).
@@ -206,7 +205,7 @@ return true;
 }
 \end{comment}
 \subsection{New token standards}
-Most of the new token standards are introduced to improve current functionality of ERC20 tokens and do not address the attack (see Table~\ref{tab:erc}). Despite these enhancements, migration from ERC20 to new token standard would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of trading platform who already listed ERC20 tokens. Our goal is to find a backward compatible solution instead of changing current ERC20 standard or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as target solutions.
+Most of the new token standards are introduced to improve current functionality of ERC20 tokens and do not address the attack (see Table~\ref{tab:erc}). Despite these enhancements, migration from ERC20 to new token standard would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of trading platform who already listed ERC20 tokens. Our goal is to find a backward compatible solution instead of changing current ERC20 API or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as a target solutions.
 \begin{table}
 \centering
 \begin{tabular}{|m{1.3cm}|m{6cm}|}
