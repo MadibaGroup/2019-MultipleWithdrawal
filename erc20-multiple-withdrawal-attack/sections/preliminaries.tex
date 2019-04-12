@@ -21,7 +21,7 @@ An adversary can exploit the gap between execution of \texttt{approve} and \text
 	\item Bob can call \texttt{transferFrom} method again and transfers M additional tokens by executing \texttt{transferFrom(\_Alice, \_Bob, M)}.
 \end{compactlistn}
 In summary, in attempting to change Bob's allowance from N to M, Alice makes it possible for Bob to transfer N+M of her tokens. We operate on the assumption that a secure implementation would prevent Bob from withdrawing Alice's tokens multiple times when the allowance changes from N to M (see Figure~\ref{fig:mwa}). If Bob could withdraw N tokens after Alice initial approval, this would be considered as legitimate transfer, since Alice has already approved it. In other words, it would be the responsibility of Alice to make sure tokens have not been transferred before modifying her approval for Bob.
-\begin{figure}[t!]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_02.png}
 	\caption{Possible multiple withdrawal attack in ERC20 tokens when Alice changes Bob's allowance from N to M. By front-running, Bob is able to move N+M tokens from token pool of Alice.\label{fig:mwa}}
