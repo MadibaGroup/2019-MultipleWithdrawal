@@ -107,7 +107,15 @@ function approve(address _spender, uint _value) public returns (bool success) {
 \end{comment}
 \noindent Even setting allowance to 0 and then to M, does not flip the flag to \texttt{false} (There is no code for it in the \texttt{approve} method). So, It keeps Bob’s allowance locked down and blocked further legitimate allowances.
 
-In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values event if tokens have been already transferred. It resembles the initial state of allowance similar when nothing was transferred. For example, considering front-running by Bob, before new allowance change from N to 0 by Alice. Bob's flag turns to \texttt{true} by \texttt{transferFrom} method and turns to \texttt{false} by \texttt{approve} method afterwards. Now if Alice wants to set allowance from 0 to M, Bob's flag is \texttt{false} and his allowance is zero. This is similar to the situation that he did not transfer any tokens. So, Alice cannot distinguish whether Bob moved any token or not. Setting new allowance will allow Bob to transfer more tokens than Alice wanted. Therefore, adding new code makes attack mitigation functionality ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new variable to track transferred tokens.\newline
+In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values even if tokens have been already transferred. Considering front-running by Bob in the below scenario:
+\begin{enumerate}
+	\item Alice changes Bob's allowance from N to 0.
+	\item Bob transfers N tokens before allowance change and his \texttt{used} flag turns to \texttt{true}.
+	\item Alice's transaction is successful since \texttt{\_value=0}. (The second condition is not evaluated although \texttt{used} flag is \texttt{true}).
+	\item Alice transaction turns \texttt{used} flag to \texttt{false} and sets Bob's allowance to 0. 
+	\item Now Alice wants to set Bob's allowance from 0 to M, His flag is \texttt{false} and allowance is 0. So, Alice cannot distinguish whether Bob moved any token or not. Setting new allowance will allow Bob to transfer more tokens than Alice wanted.
+\end{enumerate}
+In fact, resetting the flag in \texttt{approve} method will not fix the issue and makes attack mitigation ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new variable to track transferred tokens.\newline
 
 \subsection{Keeping track of remaining tokens}
 This approach\cite{Ref18} is inspired by the previous solution and keeping track of remaining tokens instead of detecting transferred tokens. \texttt{approve} method uses these variables to set allowance accordingly. It uses modified version of data structure that used in the previous solution for storing residual tokens (see Figure~\ref{fig:track}).
