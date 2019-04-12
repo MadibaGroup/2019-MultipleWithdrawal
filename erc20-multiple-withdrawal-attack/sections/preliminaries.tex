@@ -27,6 +27,14 @@ In summary, in attempting to change Bob's allowance from N to M, Alice makes it 
 	\caption{Possible multiple withdrawal attack in ERC20 tokens when Alice changes Bob's allowance from N to M. By front-running, Bob is able to move N+M tokens from token pool of Alice.\label{fig:mwa}}
 \end{figure}
 
+\subsection{Importance of mitigation}
+To effect this attack, there is a need for executing mining code and tracking transactions before being added to the block. It is therefore not easy to execute and requires initial preparation. The reason for mitigating it can be one of the followings:
+\begin{compactlist}
+	\item As the Token becomes valuable, the possibility of this attack is likely. An ERC20 token can represent different type of financial assets. From company shares to fiat currency. This might be an incentive to launch the attack.
+	\item ERC20 tokens are widely used in distributed applications and has to be secure in order to secure the entire system.
+	\item Ethereum tokens are regularly under audit and this vulnerability can be against best practices and increasing potential attack surface.
+\end{compactlist}
+
 \subsection{General prevention techniques}
 
 \noindent In general, there would be off-chain and on-chain transaction to consider when proposing solutions. For this paper, off-chain transactions are out of scope. Therefore, concentration will be on on-chain prevention techniques:
