@@ -5,3 +5,5 @@
 *.bbl
 *.blg
 *.bak
+*.DS_Store
+*.numbers

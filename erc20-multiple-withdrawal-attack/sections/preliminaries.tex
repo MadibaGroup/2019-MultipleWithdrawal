@@ -5,7 +5,7 @@
 \subsection{How the \textit{multiple withdrawal attack} works}
 
 According to the ERC20 API definition, the \texttt{approve} function\footnote{We use the term method and function interchangeably.}
-allows a spender (\eg user, wallet or other smart contracts) to withdraw up to an allowed amount of tokens from token pool of the approver. If this function is called again, it overwrites the current allowance with the new input value. The \texttt{transferFrom} function allows the spender to actually transfer tokens from the approver to anyone they choose (importantly: not necessarily themselves). The contract updates balance of transaction parties accordingly. 
+allows a spender (\eg user, wallet or other smart contracts) to withdraw up to an allowed amount of tokens from token pool of the approver. If this function is called again, it overwrites the current allowance with the new input value. On the other hand, the \texttt{transferFrom} function allows the spender to actually transfer tokens from the approver to anyone they choose (importantly: not necessarily themselves). The contract updates balance of transaction parties accordingly. 
 
 An adversary can exploit the gap between the confirmation of the \texttt{approve} and \texttt{transferFrom} functions since the \texttt{approve} method replaces the current spender allowance with the new amount, regardless of whether the spender already transferred any tokens or not. This functionality of the \texttt{approve} method is shaped by the language of the standard and cannot be changed. Furthermore, while variables change and events are logged, this information is ambiguous and cannot fully distinguish between possible traces. Consider the following illustration:
 
@@ -21,14 +21,14 @@ An adversary can exploit the gap between the confirmation of the \texttt{approve
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_02.png}
-	\caption{Possible multiple withdrawal attack in ERC20 tokens when Alice changes Bob's allowance from N to M. By front-running, Bob is able to move N+M tokens from token pool of Alice.\label{fig:mwa}}
+	\caption{Possible multiple withdrawal attack in ERC20 tokens when Alice changes Bob's allowance from N to M. By front-running, Bob is able to move N+M tokens from token pool of Alice. Solutions consider Bob's initial transfer of N tokens (in step 3) to be legitimate and try to prevent the second transfer of the additional M tokens in step 4.\label{fig:mwa}}
 \end{figure}
 
-In summary, in attempting to change Bob's allowance from N to M, Alice makes it possible for Bob to transfer N+M of her tokens. We operate on the assumption that a secure implementation would prevent Bob from withdrawing Alice's tokens multiple times when the allowance changes from N to M. More specifically, in Figure~\ref{fig:mwa}) we show that we consider Bob's initial transfer of N to be legitimate and try to prevent the second transfer of the additional M.
+In summary, in attempting to change Bob's allowance from N to M, Alice makes it possible for Bob to transfer N+M of her tokens. We operate on the assumption that a secure implementation would prevent Bob from withdrawing Alice's tokens multiple times when the allowance changes from N to M (see Figure~\ref{fig:mwa}).
 
 \subsection{Why mitigation is important}
 
-ERC20 tokens are important component of Ethereum's supplementary financial system. \textblue{Read two FC papers and add some trivia from them here, with citations}. ERC20 tokens have many financial (as well as non-financial) uses and could hold have considerable value (potentially exceeding the value of Ether itself). Furthermore, ERC20 tokens that have already been issued cannot easily migrate to a new secure implementation should these tokens appreciate in value in the future. Finally, firms that hold ERC20 tokens require assurance of their security, particularly in the case that they require their financial statements to be audited---an issue like this could lead to further hesitation by auditors.
+ERC20 tokens are important component of Ethereum's supplementary financial system. \textblue{Read two FC papers and add some trivia from them here, with citations}. ERC20 tokens have many financial (as well as non-financial) uses and could hold considerable value (potentially exceeding the value of Ether itself). Furthermore, ERC20 tokens that have already been issued cannot easily migrate to a new secure implementation and should these tokens appreciate in value in the future. Finally, firms that hold ERC20 tokens require assurance of their security, particularly in the case that they require their financial statements to be audited---an issue like this could lead to further hesitation by auditors.
 
 \subsection{Where to prevent this attack}
 
