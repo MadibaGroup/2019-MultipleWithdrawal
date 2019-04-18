@@ -7,6 +7,12 @@ In this section, we evaluate 10 solutions that have been proposed by Ethereum co
 \subsection{Enforcement by User Interface (UI)}
 \label{sec:enfui}
 
+\begin{figure}[t!]
+	\centering
+	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
+	\caption{Recommendation of ERC20 standard to mitigate multiple withdrawal attack by enforcement in UI.\label{fig:uie}}
+\end{figure}
+
 The first solution is enforcement at the user interface level. We discussed this previously in Section~\label{sec:preui} but we reiterate the main points here again. The exact recommendation from the ERC20 standard is shown in Figure~\ref{fig:uie} and is essentially to set an allowance to zero before any non-zero values. Presumedly, it will also enforce that the new approval is not allowed if proceeded by a token transfer by the approved spender. We consider the UI to be a lightweight web app that can reference a contract's state variables and emitted events but does not maintain a full copy of the blockchain. Consider (again) the most basic attack sequence:
 
 % Jeremy: Even with logging events, if Bob sends to Carol, then Alice won't necessarily pause before step 5
@@ -22,15 +28,11 @@ The first solution is enforcement at the user interface level. We discussed this
 	\item Bob transfers M of Alice’s tokens for a total of N+M tokens.
 \end{enumerate}
 
-The key mitigation to this attack is for Alice's client to pause at step 6 and determine if a transaction sequence like 3\&4 has occurred or not. This cannot be determined by monitoring 
+The key mitigation to this attack is for Alice's client to pause at step 6 and determine if a transaction sequence like 3\&4 has occurred or not. This cannot be determined by monitoring the integer that records Bob's allowance because it will be 0 regardless of whether 3\&4 occurred or not. It also cannot always be determined by monitoring the events omitted from the contract. Step 4 will log a transfer from Alice's address to Bob's address of N tokens. If no event is omitted, Alice can know for certain no transfer was made. However if an event is emitted, Alice must decide it was a transfer initiated by Bob or a transfer by someone else she has authorized. If she has not authorized anyone else, she can know for certain it was Bob. However if she has a busy account with multiple authorized spenders of her tokens, the event is not verbose enough to determine what happened. Importantly, it does not record who initiated the transfer, only who received the tokens, and these are not necessarily the same entity. Bob can send Alice's tokens to his accomplice Carol, or some other authorized spender can send Alice's tokens to Bob (which looks like Bob is attacking when he is not). Since a UI is automated and does not use human discretion, it cannot decide circumstantially whether something looks like an attack or not --- it must either specify exact rules which it cannot do precisely for ambiguous events or it can ask for Alice's human input which introduces usability issues. In conclusion, it is better for enforcement to happen at the contract level. The trick for approving 0 and then approving N can be implemented. 
 
-At step 3, Bob is able to transfer N tokens and consequently his allowance becomes 0 by \texttt{transferFrom} method. This is considered as a legitimate transaction since Alice has already approved it. The issue occurs after Alice’s new transaction in step 5 to set Bob's allowance to M. In case of front-running by Bob, Alice needs to check Bob’s allowance for the second time before setting any new value. However, she finds out Bob’s allowance 0 in either case. In other words, she can not distinguish whether Bob’s allowance is set to 0 because of her transaction in step 2 or Bob already transferred tokens by front-running is step 3. Someone may point out that Alice notices this by checking \texttt{Transfer} event logged by \texttt{transferFrom} function. However, if Bob had transferred tokens to someone else (like Carol), then \texttt{Transfer} event will not be linked to Bob, and, if Alice’s account is busy and many people are allowed to transfer from it, Alice may not be able to distinguish this transfer from a legitimate one performed by someone else. Overall, this recommendation does not prevent the attack while tries to follow ERC20 recommendations for setting Bob’s allowance to zero before any non-zero value. Hence, enforcement should be considered at contract level not UI to remove the gap between transactions and mitigate the attack. Interestingly, OpenZeppelin example implements a workaround in contract level that makes it inconsistent with the standard UI recommendations.
+\textblue{Expand on this.} Interestingly, OpenZeppelin example implements a workaround in contract level but the added parameters make it inconsistent with the standard UI recommendations.
 
-\begin{figure}[t!]
-	\centering
-	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
-	\caption{Recommendation of ERC20 standard to mitigate multiple withdrawal attack by enforcement in UI.\label{fig:uie}}
-\end{figure}
+
 
 \subsection{Minimum viable token}
 As suggested by Ethereum Foundation\cite{Ref05}, we can boil down ERC20 standard to a very basic functionalities by implementing only essential methods. This prevents effecting of the attack by skipping implementation of vulnerable functions. While removing \texttt{approve} and \texttt{transferFrom} functions prevent the attack, it makes the token partially-ERC20-compliant. Golem Network Token (GNT\footnote{https://etherscan.io/address/0xa74476443119A942dE498590Fe1f2454d7\newline D4aC0d\#code}) is one of these examples since it does not implement the \texttt{approve}, \texttt{allowance} and \texttt{transferFrom} functions. According to ERC20 specifications\cite{Ref08}, these methods are not OPTIONAL and must be implemented. Moreover, ignoring them will cause failed function calls from standard smart contracts that expect to interoperate with these methods. Therefore, we would not consider it as a backward compatible solution although mitigates the attack.
