@@ -34,9 +34,6 @@ The key mitigation to this attack is for Alice's client to pause at step 6 and d
 
 
 
-\subsection{Minimum viable token}
-As suggested by Ethereum Foundation\cite{Ref05}, we can boil down ERC20 standard to a very basic functionalities by implementing only essential methods. This prevents effecting of the attack by skipping implementation of vulnerable functions. While removing \texttt{approve} and \texttt{transferFrom} functions prevent the attack, it makes the token partially-ERC20-compliant. Golem Network Token (GNT\footnote{https://etherscan.io/address/0xa74476443119A942dE498590Fe1f2454d7\newline D4aC0d\#code}) is one of these examples since it does not implement the \texttt{approve}, \texttt{allowance} and \texttt{transferFrom} functions. According to ERC20 specifications\cite{Ref08}, these methods are not OPTIONAL and must be implemented. Moreover, ignoring them will cause failed function calls from standard smart contracts that expect to interoperate with these methods. Therefore, we would not consider it as a backward compatible solution although mitigates the attack.
-
 \subsection{Approving trusted parties}
 Approving token transfer to parties that we trust, reduces risk of impacting by the attack. Non-upgradable smart contracts or trusted accounts can be considered safe for delegating token transfers on behalf of us. Because they do not contain any logic to take advantage of this vulnerability. However, upgradable smart contracts may add new code to their new versions that needs code re-verification before approving token transfers. Similarly, approving token transfer to people that we trust could be considered as a mitigation plan. Nonetheless, this solution would have limited use cases and it could not be considered as a universal preventive approach.
 
@@ -181,6 +178,8 @@ function transferFrom(address holder, uint amount) public returns (bool) {
 \end{enumerate}
 Someone may think of using \texttt{Transfer} event to detect transferred tokens or checking approver balance to see any transferred tokens. As explained in~\ref{sec:enfui}, using \texttt{Transfer} event is not sufficient in case of transferring tokens to a third party. Checking approver balance also would not be an accurate way if the contract is busy and there are lot of transfers. So, it would be difficult for the approver to detect legitimate from non-legitimate tokens transfers. Overall, this approach cannot prevent the attack.
 
+
+
 \subsection{Changing ERC20 API}
 As advised by \cite{Ref03}, changing ERC20 API could secure \texttt{approve} method by comparing current allowance of the spender and sets it to new value if he has not already been transferred any tokens. This allows atomic compare and set of spender allowance to make the attack impossible. This approach needs a new overloaded \texttt{approve} method with three parameters in addition to the standard \texttt{approve} method with two parameters (see Figure~\ref{fig:api}).
 
@@ -210,11 +209,20 @@ emit Approval(msg.sender, _spender, _newValue, _currentValue);
 return true;
 }
 \end{comment}
+
+\subsection{Minimum viable token}
+
+As suggested by the Ethereum Foundation\cite{Ref05}, we can reduce the ERC20 standard to a set of core functionalities and implement only the essential methods. The attack can be side-stepped if methods like \texttt{approve} and \texttt{transferFrom} are simply not implemented (recall that \texttt{transferFrom} is in addition to the more commonly used \texttt{transfer}) or are implemented to always throw an exception and revert. Golem Network Token (GNT\footnote{https://etherscan.io/address/0xa74476443119A942dE498590Fe1f2454d7\newline D4aC0d\#code}) is one of these examples since it does not implement the \texttt{approve}, \texttt{allowance} and \texttt{transferFrom} functions. According to the ERC20 specification~\cite{Ref08}, these methods are not \textsc{optional} and must be implemented. Moreover, ignoring them can cause failed function calls from smart contracts or web apps that expect these methods to work as specified. Therefore, we categorize this approach as successfully mitigating the attack but not offering interoperability.
+
 \subsection{New token standards}
-Most of the new token standards are introduced to improve current functionality of ERC20 tokens and do not address the attack (see Table~\ref{tab:erc}). Despite these enhancements, migration from ERC20 to new token standard would not be convenient and all deployed ERC20 tokens---168,092 tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}---have to be redeployed. This also means update of trading platform who already listed ERC20 tokens. Our goal is to find a backward compatible solution instead of changing current ERC20 API or migrating tokens to a new standards. Despite expanded features and improved security properties of new standards, we would not consider them as a target solutions.
-\begin{table}
+
+Minimum viable tokens could alternatively be considered a new non-ERC20 token (\cf ERC223). In fact, there are many ERC20 alternatives that extend or modify ERC20 for a variety of purposes, mostly around functionality but some address multiple withdrawals. We summarize the main proposals in Table~\ref{tab:erc}. 
+
+Despite the enhancements of these new token standards for future deployments, ERC20 is ingrained in the community and industry with168,092 deployed tokens\footnote{https://etherscan.io/tokens, Accessed 18-Feb-2019}, many interoperable developer tools and libraries, and web platforms built on trading these tokens. Ideally, and the goal of this paper, a backward compatible solution could be found that does not change the ERC20 API or require token migration to a new standard (which is not necessarily possible to do at the contract level). Like minimum viable tokens, we categorize these approaches potentially mitigating the attack (depending on which standard --- see Table~\ref{tab:erc}) but not offering interoperability.
+
+\begin{table*}
 \centering
-\begin{tabular}{|m{1.3cm}|m{6cm}|}
+\begin{tabular}{|m{1.3cm}|m{15cm}|}
 	\hline\centering
 	Token Standard & A description of non-compliance with ERC20\\
 	\hline\hline\centering
@@ -230,9 +238,9 @@ Most of the new token standards are introduced to improve current functionality 
 	\hline\centering 
 	ERC 1155 \cite{Ref25} & It is improved version of ERC721 by allowing each Token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes. ERC1155 aimed to remove the need to "approve" individual token contracts separately. Therefore, it does not implement any code to address the vulnerability\\ 
 	\hline\centering 
-	ERC 1377 \cite{Ref26} & It implements \texttt{approve} method with three parameters in addition to the ERC20 default \texttt{approve} with two inputs. Additionally, it uses OpenZeppelin\cite{Ref10} approach for increasing and decreasing approvals. We would consider it as mix of MiniToken and OpenZeppelin approaches that we discussed before.\\
+	ERC 1377 \cite{Ref26} & It implements \texttt{approve} method with three parameters in addition to the ERC20 default \texttt{approve} with two inputs. Additionally, it uses OpenZeppelin~\cite{Ref10} approach for increasing and decreasing approvals. We would consider it as mix of MiniToken and OpenZeppelin approaches that we discussed before.\\
 	\hline
 \end{tabular}
 \newline
-\caption{Comparison of ERC standards in terms of com pliancy with ERC20 specification \label{tab:erc}}
-\end{table}
+\caption{Evaluation of standard's adherence to ERC20 and mitigation of the multiple withdrawal attack.\label{tab:erc}}
+\end{table*}
