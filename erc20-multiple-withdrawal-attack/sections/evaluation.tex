@@ -2,26 +2,30 @@
 
 \section{Evaluating Proposed Solutions}\label{sec:eval}
 
-Several solutions have been proposed by Ethereum community---mostly from developers on GitHub\cite{Ref07}---to address the attack. There would be some trad-offs for each solution that needs to be evaluated in term of conforming with constraints of the standard and attack mitigation. We have examined each solution and explained possible ERC20 constraint violation.
+In this section, we evaluate 10 solutions that have been proposed by Ethereum community---mostly from developers on GitHub---to address the multiple withdrawal attack. We examine each solution in detail and evaluate them against the criteria established in the previous section (see Section~\ref{sec:criteria}). The summary is presented in Table~\ref{tab:comp}.
 
-\subsection{Enforcement by User Interface (UI)}\label{sec:enfui}
+\subsection{Enforcement by User Interface (UI)}
+\label{sec:enfui}
 
-% Jeremy: We must define UI more specifically
-
-ERC20 standard recommends to (1) set allowance to zero before any non-zero values and (2) enforce approval processing check in UI instead of smart contract (see screenshot~\ref{fig:uie}). This approach can not prevent the attack in the below scenario \cite{Ref14}:
+The first solution is enforcement at the user interface level. We discussed this previously in Section~\label{sec:preui} but we reiterate the main points here again. The exact recommendation from the ERC20 standard is shown in Figure~\ref{fig:uie} and is essentially to set an allowance to zero before any non-zero values. Presumedly, it will also enforce that the new approval is not allowed if proceeded by a token transfer by the approved spender. We consider the UI to be a lightweight web app that can reference a contract's state variables and emitted events but does not maintain a full copy of the blockchain. Consider (again) the most basic attack sequence:
 
 % Jeremy: Even with logging events, if Bob sends to Carol, then Alice won't necessarily pause before step 5
 
 \begin{enumerate}
-	\item Bob is allowed to transfer N Alice’s tokens.
-	\item Alice publishes a new transaction that changes Bob’s allowance from N to 0.
-	\item Bob front runs Alice’s transaction and transfers N Alice’s tokens (\texttt{transferFrom} sets Bob’s allowance to 0 respectively).
-	\item Alice’s transaction is mined and sets Bob’s allowance to 0.
-	\item Now Alice publishes a new transaction that changes Bob’s allowance from 0 to M.
-	\item Alice’s second transaction is mined, Bob now is allowed to move M Alice’s tokens.
-	\item Bob transfers M Alice’s tokens and in total N+M.\newline
+	\item Alice allows Bob to transfer N of Alice's tokens.
+	\item Alice's client broadcasts an allowance of 0 for Bob.
+	\item Bob broadcasts a competing transaction to transfer N of Alice’s tokens.
+	\item Bob's transaction front-runs Alice's, is confirmed, and sets Bob’s allowance to 0 (from N).
+	\item Alice’s transaction is confirmed and sets Bob’s allowance to 0 (from 0).
+	\item Alice's client broadcasts an allowance of M for Bob.
+	\item Alice’s second transaction is confirmed and sets Bob's allowance to M.
+	\item Bob transfers M of Alice’s tokens for a total of N+M tokens.
 \end{enumerate}
+
+The key mitigation to this attack is for Alice's client to pause at step 6 and determine if a transaction sequence like 3\&4 has occurred or not. This cannot be determined by monitoring 
+
 At step 3, Bob is able to transfer N tokens and consequently his allowance becomes 0 by \texttt{transferFrom} method. This is considered as a legitimate transaction since Alice has already approved it. The issue occurs after Alice’s new transaction in step 5 to set Bob's allowance to M. In case of front-running by Bob, Alice needs to check Bob’s allowance for the second time before setting any new value. However, she finds out Bob’s allowance 0 in either case. In other words, she can not distinguish whether Bob’s allowance is set to 0 because of her transaction in step 2 or Bob already transferred tokens by front-running is step 3. Someone may point out that Alice notices this by checking \texttt{Transfer} event logged by \texttt{transferFrom} function. However, if Bob had transferred tokens to someone else (like Carol), then \texttt{Transfer} event will not be linked to Bob, and, if Alice’s account is busy and many people are allowed to transfer from it, Alice may not be able to distinguish this transfer from a legitimate one performed by someone else. Overall, this recommendation does not prevent the attack while tries to follow ERC20 recommendations for setting Bob’s allowance to zero before any non-zero value. Hence, enforcement should be considered at contract level not UI to remove the gap between transactions and mitigate the attack. Interestingly, OpenZeppelin example implements a workaround in contract level that makes it inconsistent with the standard UI recommendations.
+
 \begin{figure}[t!]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
