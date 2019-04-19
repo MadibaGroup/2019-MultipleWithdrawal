@@ -7,3 +7,5 @@
 *.DS_Store
 *.numbers
 *.bat
+*.bbl
+main.pdf
