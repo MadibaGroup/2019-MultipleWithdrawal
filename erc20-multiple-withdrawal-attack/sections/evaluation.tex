@@ -189,7 +189,7 @@ At a first glance, it seems to be a promising solution by more effectively enfor
 	\item Bob’s allowance is initially zero (\texttt{AB.initial=0}) and his residual is zero as well (\texttt{AB.residual=0}).
 	\item Alice allows Bob to transfer N tokens and makes \texttt{AB.initial=N} and \texttt{AB.residual=N}.
 	\item Alice decides to change Bob’s allowance to M and has to set it to zero before M.
-	\item Bob notices Alice’s broadcast for setting his allowance to 0 and frontruns it with a transfer of N tokens.
+	\item Bob notices Alice’s broadcast for setting his allowance to 0 and front-runs it with a transfer of N tokens.
 	\item Consequently, the \texttt{transferFrom} function sets his residual to zero (\texttt{AB.residual=0}).
 	\item Alice’s transaction for setting Bob's allowance to 0 is confirmed and sets \texttt{AB.initial=0} and \texttt{AB.residual=0}.
 	\item Remark: at this stage, the state is indistinguishable from Step 2. Alice cannot distinguish whether any token have been transferred or not based on \texttt{AB.initial} and \texttt{AB.residual}. 
@@ -212,7 +212,7 @@ It is true that at Step 8, a transfer event as been recorded as a result of step
 	\caption{An overloaded approve method adds a method with three parameters to compare and set new allowance atomically.\label{fig:api}}
 \end{figure}
 
-As advised by \cite{Ref03}, a secure \texttt{approve} method could take one additional parameter: the expected allowance of the spender when the adjustment to the approval is made. Under this proposal, the adjustment succeeds only if the passed expected allowance matches the spender's actual allowance, and fails otherwise. Consider a multiple withdrawal attack where Bob is approved for N of Alice's tokens, Alice adjusts his approval from N to M tokens, and Bob frontruns the approval with a transfer of N tokens. Alice's approval will specify N as the current expected allowance when adjusting it to M. Because Bob's transfer of N tokens changes his approval to 0, Alice's approval will fail because it expects an allowance of N when the allowance is 0. This allows atomic compare and set of the spender's allowance to make the attack impossible. 
+As advised by \cite{Ref03}, a secure \texttt{approve} method could take one additional parameter: the expected allowance of the spender when the adjustment to the approval is made. Under this proposal, the adjustment succeeds only if the passed expected allowance matches the spender's actual allowance, and fails otherwise. Consider a multiple withdrawal attack where Bob is approved for N of Alice's tokens, Alice adjusts his approval from N to M tokens, and Bob front-runs the approval with a transfer of N tokens. Alice's approval will specify N as the current expected allowance when adjusting it to M. Because Bob's transfer of N tokens changes his approval to 0, Alice's approval will fail because it expects an allowance of N when the allowance is 0. This allows atomic compare and set of the spender's allowance to make the attack impossible. 
 
 While this approach mitigates the attack, it requires a new overloaded \texttt{approve} method with three parameters, in addition to the standard ERC20 \texttt{approve} method with two parameters (see Figure~\ref{fig:api}). Additionally it defines a new event. Existing ERC20 web apps and smart contracts will be unaware of the overloaded method and continue to call the insecure two parameter method. Thus it does not provide interoperability. 
 

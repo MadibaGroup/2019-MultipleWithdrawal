@@ -4,63 +4,83 @@
 
 By this point, we have discussed 10 solutions to the multiple withdrawal attack and we evaluated them in terms of compatibility with the standard and attack mitigation (recall the summary in Table~\ref{tab:comp}). Since none of them precisely satisfy the constraints of ERC20 standard, we now propose two new solutions to mitigate the attack.
 
-\subsection{Proposal 1: Securing \texttt{approve} method}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+\subsection{Proposal 1: Securing \texttt{approve}}
 \label{sec:proposal1}
 
-%Securing \texttt{approve} method could be a solution and prevent the attack. By using compare and set (CAS) pattern \cite{Ref06}, \texttt{approve} method can change spender allowance from N to M atomically (\ie comparing new allowance with transferred token and set it accordingly). Comparison part of CAS requires knowledge of previously transferred tokens that will reveal any token transfer in case of front-running. Although this is promising approach,  setting new allowance in \texttt{approve} method must satisfy ERC20 constraint that dictates "If this function is called again it overwrites the current allowance with \texttt{\_value}" \cite{Ref08}. This does not allow any adjustments in allowance while it is a prerequisite for securing \texttt{approve} method. 
-
-By implementing CAS \cite{Ref06} in \texttt{approve} method, new allowance can be set atomically after comparing with transferred tokens. This tracking requires adding a new variable to \texttt{transferFrom} method (see Figure~\ref{fig:transfer1}). Since this is an internal variable, it is not visible to already deployed smart contracts and keeps the \texttt{transferFrom} function compatible. Similarly, a block of code is added to the \texttt{approve} function (see Figure~\ref{fig:approve1}) to work in both cases with zero and non-zero allowances. Added code to the \texttt{approve} function, compares new allowance---passed as \texttt{\_tokens} argument to the function---with the current allowance of the spender and already transferred tokens---highlighted as \texttt{allowed[msg.sender][\_spender]} and \texttt{transferred[msg.sender][\_spender]}. Then it decides to increase or decrease current allowance based on this comparison. If the new allowance is less than initial allowance---sum of \texttt{allowance} and \texttt{transferred} variables---it denotes decreasing of allowance, otherwise increasing of allowance was intended. Modified \texttt{approve} function prevents the attack in either increasing or decreasing of the allowance.
-
-Unlike other solutions, there is no need to set allowance from N to 0 and then to M. Token holder can directly change the allowance from N to M which is saving one transaction accordingly. The following examples make functionality of added codes more clear when decreasing or increasing allowance:
- 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_14.png}
 	\caption{Modified version of \texttt{transferFrom} for keeping track of transferred tokens per spender.\label{fig:transfer1}}
 \end{figure}
-\begin{comment}
-function transferFrom(address _from, address _to, uint256 _tokens) public returns (bool success) {
-	require(_to != address(0));
-	require(balances[_from] >= _tokens);                 // Checks if approver has enough tokens
-	require(allowed[_from][msg.sender] >= _tokens);      // Checks allowance
-	balances[_from] = balances[_from].sub(_tokens);
-	allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_tokens);
-	transferred[_from][msg.sender] = transferred[_from][msg.sender].add(_tokens);
-	balances[_to] = balances[_to].add(_tokens);
-	emit Transfer(_from, _to, _tokens);
-	return true;
-}
-\end{comment}
+
+%\begin{comment}
+%function transferFrom(address _from, address _to, uint256 _tokens) public returns (bool success) {
+%	require(_to != address(0));
+%	require(balances[_from] >= _tokens);                 // Checks if approver has enough tokens
+%	require(allowed[_from][msg.sender] >= _tokens);      // Checks allowance
+%	balances[_from] = balances[_from].sub(_tokens);
+%	allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_tokens);
+%	transferred[_from][msg.sender] = transferred[_from][msg.sender].add(_tokens);
+%	balances[_to] = balances[_to].add(_tokens);
+%	emit Transfer(_from, _to, _tokens);
+%	return true;
+%}
+%\end{comment}
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_15.png}
 	\caption{Added code block to \texttt{approve} function to prevent the attack by comparing and setting new allowance atomically.\label{fig:approve1}}
 \end{figure}
-\begin{comment}
-function approve(address _spender, uint256 _tokens) public returns (bool success) {
-	require(_spender != address(0));
-	uint256 allowedTokens = 0;
-	uint256 initiallyAllowed = allowed[msg.sender][_spender].add(transferred[msg.sender][_spender]);
-	
-	//Aprover reduces allowance
-	if (_tokens <= initiallyAllowed){ 
-		if (transferred[msg.sender][_spender] < _tokens){ // If less tokens had been transferred.
-			allowedTokens = _tokens.sub(transferred[msg.sender][_spender]); // Allows _spender for the rest 
-		}
-	}
-	//Approver increases allowance
-	else{ 
-		allowedTokens = _tokens.sub(initiallyAllowed);
-		allowedTokens = allowed[msg.sender][_spender].add(allowedTokens);
-	}
-	
-	allowed[msg.sender][_spender] = allowedTokens;
-	emit Approval(msg.sender, _spender, allowedTokens);
-	return true;
-}
-\end{comment}
-\subsubsection*{Scenario A} Alice approves Bob for spending 100 tokens and then decides to decrease it to 10 tokens.
+
+
+%\begin{comment}
+%function approve(address _spender, uint256 _tokens) public returns (bool success) {
+%	require(_spender != address(0));
+%	uint256 allowedTokens = 0;
+%	uint256 initiallyAllowed = allowed[msg.sender][_spender].add(transferred[msg.sender][_spender]);
+%	
+%	//Aprover reduces allowance
+%	if (_tokens <= initiallyAllowed){ 
+%		if (transferred[msg.sender][_spender] < _tokens){ // If less tokens had been transferred.
+%			allowedTokens = _tokens.sub(transferred[msg.sender][_spender]); // Allows _spender for the rest 
+%		}
+%	}
+%	//Approver increases allowance
+%	else{ 
+%		allowedTokens = _tokens.sub(initiallyAllowed);
+%		allowedTokens = allowed[msg.sender][_spender].add(allowedTokens);
+%	}
+%	
+%	allowed[msg.sender][_spender] = allowedTokens;
+%	emit Approval(msg.sender, _spender, allowedTokens);
+%	return true;
+%}
+%\end{comment}
+
+%Securing \texttt{approve} method could be a solution and prevent the attack. By using compare and set (CAS) pattern \cite{Ref06}, \texttt{approve} method can change spender allowance from N to M atomically (\ie comparing new allowance with transferred token and set it accordingly). Comparison part of CAS requires knowledge of previously transferred tokens that will reveal any token transfer in case of front-running. Although this is promising approach,  setting new allowance in \texttt{approve} method must satisfy ERC20 constraint that dictates "If this function is called again it overwrites the current allowance with \texttt{\_value}" \cite{Ref08}. This does not allow any adjustments in allowance while it is a prerequisite for securing \texttt{approve} method. 
+
+By implementing the Compare-and-Set (CAS) pattern~\cite{Ref06} in the \texttt{approve} method, we set up a small state machine so that new allowances can be set atomically after a comparison with transferred tokens. This tracking requires adding a new variable to the \texttt{transferFrom} method (see Figure~\ref{fig:transfer1}). Since this is an internal variable, it is not visible to already deployed smart contracts and keeps the \texttt{transferFrom} function ERC20-compatible. Similarly, a block of code is added to the \texttt{approve} function (see Figure~\ref{fig:approve1}) to work in both cases with zero and non-zero allowances. This new logic in the \texttt{approve} function compares a new allowance---passed as \texttt{\_tokens} argument to the function---with the current allowance of the spender and the already transferred tokens. Allowance are in \texttt{allowed[msg.sender][\_spender]} as in typical EDRC20 implementation, and \texttt{transferred[msg.sender][\_spender]} is the new state. The method decides to increase or decrease the current allowance based on this comparison. If the new allowance is less than initial allowance---sum of \texttt{allowance} and \texttt{transferred} variables---it denotes decreasing of allowance, otherwise increasing of allowance is intended. Such a modified \texttt{approve} function prevents the attack by either increasing or decreasing the allowance instead of setting it to an explicit value.
+
+Unlike other solutions, there is no need to set allowance from N to 0 and then to M. The token holder can directly change the allowance from N to M which saves time waiting for the confirmation of a transaction and any monitoring of the contract. Consider the following transaction sequences to illustrate how the state changes:
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+\subsubsection*{Scenario A} Alice approves Bob for spending 100 tokens and then decides to increase it to 120 tokens.
+\begin{enumerate}
+	\item Alice approves Bob for transferring 100 tokens.
+	\item After a while, Alice decides to increase Bob’s allowance from 100 to 120 tokens.
+	\item Bob noticed Alice’s new transaction and transfers 100 tokens by front-running.
+	\item Bob’s allowance is 0 and \texttt{transferred} is 100.
+	\item Alice’s transaction is mined and checks initial allowance (100) with new allowance (120).
+	\item As it is increasing, the new allowance (120) will be subtracted from the transferred tokens (100).
+	\item 20 tokens will be added to Bob’s allowance.
+	\item Bob would be able to transfer 20 more tokens (120 in total as Alice wanted).\newline
+\end{enumerate}
+ 
+\subsubsection*{Scenario B} Alice approves Bob for spending 100 tokens and then decides to decrease it to 10 tokens.
 \begin{enumerate}
 	\item Alice approves Bob for transferring 100 tokens.
 	\item After a while, Alice decides to reduce Bob’s allowance from 100 to 10 tokens.
@@ -71,62 +91,52 @@ function approve(address _spender, uint256 _tokens) public returns (bool success
 	\item Bob is not able to move more than initial 100 approved tokens.
 \end{enumerate}
 
-\subsubsection*{Scenario B} Alice approves Bob for spending 100 tokens and then decides to increase it to 120 tokens.
-\begin{enumerate}
-	\item Alice approves Bob for transferring 100 tokens.
-	\item After a while, Alice decides to increase Bob’s allowance from 100 to 120 tokens.
-	\item Bob noticed Alice’s new transaction and transfers 100 tokens by front-running.
-	\item Bob’s allowance is 0 and \texttt{transferred} is 100.
-	\item Alice’s transaction is mined and checks initial allowance (100) with new allowance (120).
-	\item As it is increasing, new allowance (120) will be subtracted from transferred tokens (100).
-	\item 20 tokens will be added to Bob’s allowance.
-	\item Bob would be able to transfer more 20 tokens (120 in total as Alice wanted).\newline
-\end{enumerate}
-
-In order to evaluate functionality of the new \texttt{approve} and \texttt{transferFrom} functions, we have implemented a standard ERC20 token (TKNv1\footnote{https://rinkeby.etherscan.io/address/0x8825bac68a3f6939c296a40f c8078d18c2f66ac7}) along side the proposed ERC20 token (TKNv2\footnote{https://rinkeby.etherscan.io/address/0xf2b34125223ee54dff48f715 67d4b2a4a0c9858b}) on Rinkeby test network. Result of tests for different input values shows that TKNv2 can address multiple withdrawal attack by making front-running gain ineffective. Moreover, we compared these two tokens in term of gas consumption. TokenV2.\texttt{approve} function uses almost the same amount of gas as TokenV1.\texttt{approve}, however, gas consumption of TokenV2.\texttt{transferFrom} is around 47\% more than TokenV1.\texttt{transferFrom} (see Figure~\ref{fig:gas}). This difference is because of maintaining a new mapping variable for tracking transferred tokens. In term of compatibility, working with standard wallets (\eg MetaMask) have not raised any transfer issue. This shows compatibility of the token with existing wallets.
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_22.png}
 	\caption{Comparison of gas consumption between standard implementation of ERC20 token (TKNv1) and secured implementation of it (TKNv2).\label{fig:gas}}
 \end{figure}
-\begin{comment}
-function transferFrom(address _from, address _to, uint256 _tokens) public returns (bool success) {
-	require(_to != address(0));
-	require(balances[_from] >= _tokens);                // Checks if approver has enough tokens
-	require(_tokens <= (
-		(allowed[_from][msg.sender] > transferred[_from][msg.sender]) ? 
-		allowed[_from][msg.sender].sub(transferred[_from][msg.sender]) : 0)
-		);                              // Prevents token transfer more than allowance
-	
-	balances[_from] = balances[_from].sub(_tokens);
-	transferred[_from][msg.sender] = transferred[_from][msg.sender].add(_tokens);
-	balances[_to] = balances[_to].add(_tokens);
-	emit Transfer(_from, _to, _tokens);
-	return true;
-}
-\end{comment}
-In summary, we could use CAS pattern to implement a secure \texttt{approve} method that can mitigate the attack effectively. However, it violates one of ERC20 specifications that says "If this function is called again it overwrites the current allowance with \texttt{\_value}". This implementation of \texttt{approve} method adjusts allowance based on transferred tokens. Essentially, it would not be possible to secure the \texttt{approve} method without adjusting the allowance. Considering the below scenario:
+
+\subsubsection*{Performance} In order to evaluate functionality of the new \texttt{approve} and \texttt{transferFrom} functions, we have implemented a standard ERC20 token (TKNv1\footnote{https://rinkeby.etherscan.io/address/0x8825bac68a3f6939c296a40f c8078d18c2f66ac7}) along side the proposed ERC20 token (TKNv2\footnote{https://rinkeby.etherscan.io/address/0xf2b34125223ee54dff48f715 67d4b2a4a0c9858b}) on the Rinkeby test network. Our testing for different input values shows that TKNv2 can address multiple withdrawal attack by making front-running gains ineffective. Moreover, we compared these two tokens in term of gas consumption. TKNv2.\texttt{approve} function uses almost the same amount of gas as TKNv1.\texttt{approve}, however, gas consumption of TKNv2.\texttt{transferFrom} is around 47\% more than TKNv1.\texttt{transferFrom} (see Figure~\ref{fig:gas}). This difference is because TKNv2 must maintain a new mapping variable for tracking transferred tokens. In term of compatibility, both are equivalent interoperable with standard wallets (\eg MetaMask) and have not raised any transfer issues.
+
+
+
+
+%function transferFrom(address _from, address _to, uint256 _tokens) public returns (bool success) {
+%	require(_to != address(0));
+%	require(balances[_from] >= _tokens);                // Checks if approver has enough tokens
+%	require(_tokens <= (
+%		(allowed[_from][msg.sender] > transferred[_from][msg.sender]) ? 
+%		allowed[_from][msg.sender].sub(transferred[_from][msg.sender]) : 0)
+%		);                              // Prevents token transfer more than allowance
+%	
+%	balances[_from] = balances[_from].sub(_tokens);
+%	transferred[_from][msg.sender] = transferred[_from][msg.sender].add(_tokens);
+%	balances[_to] = balances[_to].add(_tokens);
+%	emit Transfer(_from, _to, _tokens);
+%	return true;
+%}
+
+
+\subsubsection*{Discussion} In summary, we can use the CAS pattern to implement a secure \texttt{approve} method that can mitigate the attack effectively. However, it violates one of the ERC20 specifications that says: ``If [the allowance] function is called again, it overwrites the current allowance with \texttt{\_value}" (item 2 in Section~\ref{sec:criteria}). Our solution does not comply with this as the resulting allowance can be different than what is passed by the approver (as shown in the scenarios above).
+
+Furthermore we argue that is in fact impossible to secure the \texttt{approve} method without adjusting the allowance. Considering the following transaction sequence:
 
 \begin{enumerate}
-	\item Alice decides to change Bob's allowance from N to M (M less than N in this example).
-	\item Bob transfers N tokens by front running and \texttt{transferred} variable sets to N.
-	\item Alice's transaction is mined and \texttt{approve} method detects token transfer. If \texttt{approve} method does not adjust the allowance based on transferred tokens, it has to set it to M---to conform with the standard---which is allowing Bob to transfer more M tokens.
+	\item Alice decides to change Bob's allowance from N to M (M $\leq$ N in this example).
+	\item Bob transfers N tokens by front-running and the \texttt{transferred} variable sets to N.
+	\item Alice's transaction is mined and the \texttt{approve} method detects Bob's token transfer.
+	\item If \texttt{approve} method does not adjust the allowance based on transferred tokens, it has to set it to M---to conform with the standard---which is allowing Bob to transfer more M tokens, or it could fail which deadlocks Bob from future approvals.
 \end{enumerate}
-Therefore, \texttt{approve} method has to adjust the allowance according to transferred tokens, not based on passed input values to the \texttt{approve} method. Overall, there is no solution to secure \texttt{approve} method while adhering specification of ERC20 standard.
 
-\subsection{Proposal 2: Securing \texttt{transferFrom} method}\label{sec:proposal2}
+Therefore the \texttt{approve} method has to adjust the allowance according to transferred tokens, not based on passed input values to the \texttt{approve} method. Overall, there seems to be no solution to secure the \texttt{approve} method while adhering specification of ERC20 standard.
 
-% Based on ERC20 specifications, "approve functions allows \texttt{\_spender} to withdraw from your account multiple times, up to the \texttt{\_value}". Therefore, spender must not be able to transfer more than allowed tokens. That being said, \texttt{transferFrom} method can prevent transferring of new tokens in case of already transferred tokens up to allowed amount. By comparing transferred tokens in \texttt{transferFrom} method, spender will be restricted to move solely the remaining tokens of his allowance. In case of trying to transfer more tokens than allowed, the transaction fails. For example, Alice's new transaction for increasing Bob allowance from 100 to 110, sets Bob allowance to 110 (\texttt{approve} method sets allowance regardless of transferred tokens). However, \texttt{transferFrom} method prevent the attack by not allowing Bob to transfer more than 10 tokens if he had already transferred 100 tokens. We implemented this approach in~\ref{sec:proposal2} and it mitigates the attack effectively.
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-As an alternative solution to Proposal 1, we can think of securing \texttt{transferFrom} method instead of \texttt{approve} function. As specified by ERC20 standard (see figure~\ref{fig:standard}), the goal here is to prevent spender from transferring more tokens than allowed. Based on this assumption, we should not consider allowance as the main prevention factor. Transferred tokens can be considered as the main variable in our calculations. For example in the below situation, we can prevent the attack by securing \texttt{transferFrom} method and keeping \texttt{approve} function untouched to set allowance as specified by the token holder:
-\begin{enumerate}
-	\item Alice allowed Bob for transferring 100 tokens and decides to set it to 70 after a while.
-	\item Bob front runs Alice’s transaction and transfers 100 tokes (legitimate transfer).
-	\item Alice transaction is mined and sets Bob allowance to 70 by the default \texttt{approve} method.
-	\item Bob noticed new allowance and tries to move new tokens by running \texttt{transferFrom(\_Bob,70)}. Since he already transferred more than 70, his transaction fails and prevents multiple withdrawal. Additionally, Bob’s allowance stays as 70, although transferred tokens shows 100.
-\end{enumerate}
-Here, \texttt{allowance} value can be considered as maximum allowance. It indicates that Bob is eligible to transfer up to specified limit if he has not already transferred any tokens. This impression is completely in accordance with ERC20 standard (see figure~\ref{fig:standard}). In fact, there is no relation between allowance (\texttt{allowed[\_from][msg.sender]}) and transferred tokens (\texttt{transferred[\_from][msg.sender]}). The first variable shows maximum transferable tokens by a spender and can be changed irrelative to transferred tokens (\ie \texttt{approve} method does not check transferred tokens). If Bob has not already transferred that much of tokens, he would be able to transfer difference of it---\texttt{allowed[\_from][msg.sender].sub(transfer red[\_from][msg.sender]}). In other words, \texttt{transferred} variable is a life time variable that accumulates transferred tokens regardless of allowance changes. This token is implemented as TKNv3\footnote{https://rinkeby.etherscan.io/address/0x5d148c948c01e1a61e280c8 b2ac39fd49ee6d9c6} on Rinkby network and passed compatibility checks by transferring tokens between standard wallets. In terms of gas consumption, \texttt{transferFrom} function needs at about 37\% more gas than standard \texttt{transferFrom} implementation which is acceptable for having a secure ERC20 token.
+
+\subsection{Proposal 2: Securing \texttt{transferFrom}}\label{sec:proposal2}
 
 \begin{figure}[t]
 	\centering
@@ -139,3 +149,24 @@ Here, \texttt{allowance} value can be considered as maximum allowance. It indica
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_31.png}
 	\caption{Securing \texttt{transferFrom} method instead of \texttt{approve} method can mitigate the attack by preventing more token transfer than allowed.\label{fig:transfer2}}
 \end{figure}
+
+% Based on ERC20 specifications, "approve functions allows \texttt{\_spender} to withdraw from your account multiple times, up to the \texttt{\_value}". Therefore, spender must not be able to transfer more than allowed tokens. That being said, \texttt{transferFrom} method can prevent transferring of new tokens in case of already transferred tokens up to allowed amount. By comparing transferred tokens in \texttt{transferFrom} method, spender will be restricted to move solely the remaining tokens of his allowance. In case of trying to transfer more tokens than allowed, the transaction fails. For example, Alice's new transaction for increasing Bob allowance from 100 to 110, sets Bob allowance to 110 (\texttt{approve} method sets allowance regardless of transferred tokens). However, \texttt{transferFrom} method prevent the attack by not allowing Bob to transfer more than 10 tokens if he had already transferred 100 tokens. We implemented this approach in~\ref{sec:proposal2} and it mitigates the attack effectively.
+
+As an alternative to Proposal 1, we can also consider securing the \texttt{transferFrom} method instead of the \texttt{approve} method. As specified by the ERC20 standard (see figure~\ref{fig:standard}), the goal here is to prevent the spender from transferring more tokens than allowed. Based on this assumption, we should not rely solely on the allowance value in deciding whether to allow or prevent an approve and should also consider the number of transferred tokens, which requires new state as in Proposal 1. 
+
+Our solution, which is compliant with a careful reading of ERC20, is to interpret allowance as a `global' or `lifetime' allowance value, instead of the amount allowed at the specific time of invocation. For example, say Alice approves Bob for 50 tokens, Bob transfers 50 tokens, Alice approves Bob for 30 (more) tokens, and Bob transfers 30 tokens. In our implementation, Alice would approve Bob for 50 tokens and he transfers 50 tokens. To approve Bob for 30 more tokens, she approves Bob for 80 tokens. He has already spent 50 of these 80 tokens so he will only be allowed to transfer an addition 30. Thus 80 is his lifetime allowance and 50 (kept internally) is the amount he has transferred. In a bit more detail, consider the following, which prevents multiple withdrawals by modifying the implementation of \texttt{transferFrom} but keeping \texttt{approve} untouched:
+
+\begin{enumerate}
+	\item Alice approvals Bob to transferring 100 tokens
+	\item Alice broadcasts an approval of 70, decreasing Bob's allowance.
+	\item Bob front-runs Alice’s transaction and transfers 100 tokens (remark: a legitimate transfer).
+	\item Alice's transaction is confirmed and sets Bob allowance to 70 by the default \texttt{approve} method.
+	\item Bob's noticed the new allowance and tries to move 70 additional tokens by broadcasting \texttt{transferFrom(\_Bob,70)}. 
+	\item Since Bob has already transferred more than 70 tokens, his transaction fails and prevents multiple withdrawal. 
+	\item In the end, Bob’s allowance is set at 70 and his transferred tokens are set at 100.
+\end{enumerate}
+
+\subsubsection*{Performance \& Discussion} Interpreting \texttt{allowance} as a lifetime allowance is completely in accordance with the ERC20 standard (see figure~\ref{fig:standard}). In our solution, there is no relation between allowance (\texttt{allowed[\_from][msg.sender]}) and transferred tokens (\texttt{transferred[\_from][msg.sender]}). The first variable shows lifetime transferable tokens by a spender and can be changed independently of the transferred tokens (\ie \texttt{approve} method does not check transferred tokens). If Bob has not already transferred that many tokens, he would be able to transfer the difference of it---\texttt{allowed[\_from][msg.sender].sub(transfer red[\_from][msg.sender]}). 
+
+Our token is implemented as TKNv3\footnote{https://rinkeby.etherscan.io/address/0x5d148c948c01e1a61e280c8 b2ac39fd49ee6d9c6} on Rinkeby test network and it passes compatibility checks by transferring tokens between standard wallets. In terms of gas consumption, its \texttt{transferFrom} function needs at about 37\% more gas than standard \texttt{transferFrom} implementation. We believe this is acceptable for having a secure ERC20 token.
+
