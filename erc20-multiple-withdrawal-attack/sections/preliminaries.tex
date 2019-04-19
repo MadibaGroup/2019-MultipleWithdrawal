@@ -41,7 +41,7 @@ There are a few logical places to address this attack. Ideally the token author 
 %\end{enumerate}
 
 \subsubsection*{Prevention by token holder}
-\label{sec:preui}
+\label{sec:preho}
 
 Consider Alice, a token holder using a web app (\eg a user interface deployed with web3) to adjust Bob's allowance. If this UI is written to the ERC20 standard, Alice will only have \texttt{approve} available to her. The ERC20 authors~\cite{Ref08} advise Alice against directly changing Bob's allowance from N to M. Instead, she should set the approval to 0 and then it to M. Presumedly, Alice will not do the second approval (setting it from 0 to M) if she sees that Bob withdraws N tokens before her N to 0 adjustment is confirmed. 
 
