@@ -1,0 +1,178 @@
+\begin{thebibliography}{10}
+\footnotesize
+\bibitem{Ref00}
+Ethereum.
+\newblock {Ethereum project repository}.
+\newblock \url{https://github.com/ethereum}, May 2014.
+\newblock [Online; accessed 10-Nov-2018].
+
+\bibitem{Ref08}
+Fabian Vogelsteller and Vitalik Buterin.
+\newblock {ERC-20 Token Standard}.
+\newblock \url{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md},
+  November 2015.
+\newblock [Online; accessed 2-Dec-2018].
+
+\bibitem{Ref13}
+Mikhail Vladimirov.
+\newblock {Attack vector on ERC20 API (approve/transferFrom methods) and
+  suggested improvements}.
+\newblock
+  \url{https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729},
+  November 2016.
+\newblock [Online; accessed 18-Dec-2018].
+
+\bibitem{Ref07}
+Tom Hale.
+\newblock {Resolution on the EIP20 API Approve / TransferFrom multiple
+  withdrawal attack \#738}.
+\newblock \url{https://github.com/ethereum/EIPs/issues/738}, October 2017.
+\newblock [Online; accessed 5-Dec-2018].
+
+\bibitem{eskandari2019sok}
+Shayan Eskandari, Seyedehmahsa Moosavi, and Jeremy Clark.
+\newblock Sok: Transparent dishonesty: front-running attacks on blockchain.
+\newblock {\em International Conference on Financial Cryptography and Data
+  Security}, 2019.
+
+\bibitem{Ref10}
+OpenZeppelin.
+\newblock {openzeppelin-solidity}.
+\newblock
+  \url{https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol},
+  December 2018.
+\newblock [Online; accessed 23-Dec-2018].
+
+\bibitem{Ref11}
+ConsenSys.
+\newblock {ConsenSys/Tokens}.
+\newblock
+  \url{https://github.com/ConsenSys/Tokens/blob/fdf687c69d998266a95f15216b1955a4965a0a6d/contracts/eip20/EIP20.sol},
+  April 2018.
+\newblock [Online; accessed 24-Dec-2018].
+
+\bibitem{Ref06}
+Wikipedia.
+\newblock {Compare-and-swap}.
+\newblock \url{https://en.wikipedia.org/wiki/Compare-and-swap}, July 2018.
+\newblock [Online; accessed 10-Dec-2018].
+
+\bibitem{victormeasuring}
+Friedhelm Victor and Bianca~Katharina L{\"u}ders.
+\newblock Measuring ethereum-based erc20 token networks.
+\newblock In {\em International Conference on Financial Cryptography and Data
+  Security}, 2019.
+
+\bibitem{frowis2018detecting}
+Michael Fr{\"o}wis, Andreas Fuchs, and Rainer B{\"o}hme.
+\newblock Detecting token systems on ethereum.
+\newblock {\em arXiv preprint arXiv:1811.11645}, 2018.
+
+\bibitem{Ref15}
+Jordi Baylina, Danil Nemirovsky, and sophiii.
+\newblock {minime/contracts/MiniMeToken.sol}.
+\newblock
+  \url{https://github.com/Giveth/minime/blob/master/contracts/MiniMeToken.sol\#L225},
+  December 2017.
+\newblock [Online; accessed 23-Dec-2018].
+
+\bibitem{Ref12}
+Peter Vessenes.
+\newblock {MonolithDAO/token}.
+\newblock \url{https://github.com/MonolithDAO/token/blob/master/src/Token.sol},
+  April 2017.
+\newblock [Online; accessed 23-Dec-2018].
+
+\bibitem{Ref16}
+Enrique Chavez.
+\newblock {StandardToken.sol}.
+\newblock
+  \url{https://github.com/kindads/erc20-token/blob/40d796627a2edd6387bdeb9df71a8209367a7ee9/contracts/zeppelin-solidity/contracts/token/StandardToken.sol},
+  March 2018.
+\newblock [Online; accessed 23-Dec-2018].
+
+\bibitem{Ref17}
+Nate Welch.
+\newblock {flygoing/BackwardsCompatibleApprove.sol}.
+\newblock
+  \url{https://gist.github.com/flygoing/2956f0d3b5e662a44b83b8e4bec6cca6},
+  February 2018.
+\newblock [Online; accessed 23-Dec-2018].
+
+\bibitem{Ref18}
+outofgas.
+\newblock {outofgas comment}.
+\newblock
+  \url{https://github.com/ethereum/EIPs/issues/738\#issuecomment-373935913},
+  March 2018.
+\newblock [Online; accessed 25-Dec-2018].
+
+\bibitem{Ref03}
+M.~Vladimirov and D.~Khovratovich.
+\newblock {ERC20 API: An Attack Vector on Approve/TransferFrom Methods}.
+\newblock
+  \url{https://docs.google.com/document/d/1YLPtQxZu1UAvO9cZ1O2RPXBbT0mooh4DYKjA_jp-RLM/edit#heading=h.m9fhqynw2xvt},
+  November 2016.
+\newblock [Online; accessed 25-Nov-2018].
+
+\bibitem{Ref05}
+Ethereum Project.
+\newblock {Create your own crypto-currency)}.
+\newblock \url{https://www.ethereum.org/token}, December 2017.
+\newblock [Online; accessed 01-Dec-2018].
+
+\bibitem{Ref20}
+Dexaran.
+\newblock {ERC223 token standard}.
+\newblock \url{https://github.com/ethereum/EIPs/issues/223}, March 2017.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref21}
+Steve Ellis.
+\newblock {transferAndCall Token Standard}.
+\newblock \url{https://github.com/ethereum/EIPs/issues/677}, July 2017.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref22}
+William Entriken, Dieter Shirley, Jacob Evans, and Nastassia Sachs.
+\newblock {ERC-721 Non-Fungible Token Standard}.
+\newblock \url{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md},
+  January 2018.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref23}
+Jacques Dafflon, Jordi Baylina, and Thomas Shababi.
+\newblock {EIP 777: A New Advanced Token Standard}.
+\newblock \url{https://eips.ethereum.org/EIPS/eip-777}, November 2017.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref24}
+Augusto Lemble.
+\newblock {ERC827 Token Standard (ERC20 Extension)}.
+\newblock \url{https://github.com/ethereum/eips/issues/827}, January 2018.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref25}
+Witek Radomski, Cooke Andrew, Philippe Castonguay, James Therien, and Eric
+  Binet.
+\newblock {ERC-1155 Multi Token Standard}.
+\newblock \url{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md},
+  June 2018.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{Ref26}
+Atkins Chang, Noel Bao, Jack Chu, Leo Chou, and Darren Goh.
+\newblock {Service-Friendly Token Standard}.
+\newblock
+  \url{https://github.com/fstnetwork/EIPs/blob/master/EIPS/eip-1376.md},
+  September 2018.
+\newblock [Online; accessed 12-Jan-2019].
+
+\bibitem{fenu2018ico}
+Gianni Fenu, Lodovica Marchesi, Michele Marchesi, and Roberto Tonelli.
+\newblock The ico phenomenon and its relationships with ethereum smart contract
+  environment.
+\newblock In {\em 2018 International Workshop on Blockchain Oriented Software
+  Engineering (IWBOSE)}, pages 26--32. IEEE, 2018.
+
+\end{thebibliography}

@@ -2,7 +2,6 @@
 *.aux
 *.gz
 *.out
-*.bbl
 *.blg
 *.bak
 *.DS_Store
