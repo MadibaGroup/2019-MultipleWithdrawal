@@ -2,7 +2,7 @@
 
 \section{Evaluating Proposed Solutions}\label{sec:eval}
 
-In this section, we evaluate 10 solutions that have been proposed by Ethereum community---mostly from developers on GitHub---to address the multiple withdrawal attack. We examine each solution in detail and evaluate them against the criteria established in the previous section (see Section~\ref{sec:criteria}). The summary is presented in Table~\ref{tab:comp}.
+In this section, we evaluate 10 solutions that have been proposed by Ethereum community---mostly from developers on GitHub---to address the multiple withdrawal attack. We examine each solution in detail and evaluate them against the criteria established in the previous section (see Section~\ref{sec:criteria}). The summary is presented in Figure~\ref{tab:comp}.
 
 \subsection{Enforcement by User Interface (UI)}
 \label{sec:enfui}
@@ -10,10 +10,10 @@ In this section, we evaluate 10 solutions that have been proposed by Ethereum co
 \begin{figure}[t!]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_03.png}
-	\caption{Recommendation of ERC20 standard to mitigate multiple withdrawal attack by enforcement in UI.\label{fig:uie}}
+	\caption{Recommendation of ERC20 standard to mitigate \textit{``multiple withdrawal attack''} by enforcement in UI.\label{fig:uie}}
 \end{figure}
 
-The first solution is enforcement at the user interface level. We discussed this previously in Section~\label{sec:preui} but we reiterate the main points here again. The exact recommendation from the ERC20 standard is shown in Figure~\ref{fig:uie} and is essentially to set an allowance to zero before any non-zero values. Presumedly, it will also enforce that the new approval is not allowed if proceeded by a token transfer by the approved spender. We consider the UI to be a lightweight web app that can reference a contract's state variables and emitted events but does not maintain a full copy of the blockchain. Consider (again) the most basic attack sequence:
+The first solution is enforcement at the user interface level. We discussed this previously in Section~\ref{sec:preho} but we reiterate the main points here again. The exact recommendation from the ERC20 standard is shown in Figure~\ref{fig:uie} and is essentially to set an allowance to zero before any non-zero values. Presumedly, it will also enforce that the new approval is not allowed if proceeded by a token transfer by the approved spender. We consider the UI to be a lightweight web app that can reference a contract's state variables and emitted events but does not maintain a full copy of the blockchain. Consider (again) the most basic attack sequence:
 
 % Jeremy: Even with logging events, if Bob sends to Carol, then Alice won't necessarily pause before step 5
 

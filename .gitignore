@@ -2,8 +2,10 @@
 *.aux
 *.gz
 *.out
-*.bbl
 *.blg
 *.bak
 *.DS_Store
 *.numbers
+*.bat
+*.bbl
+main.pdf
