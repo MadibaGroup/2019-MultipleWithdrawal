@@ -36,7 +36,8 @@ It also cannot always be determined by monitoring the events emitted from the co
 
 % = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-\subsection{MiniMeToken}\label{sec:MiniMeToken}
+\subsection{MiniMeToken}
+\label{sec:MiniMeToken}
 
 %\begin{comment}
 %// To change the approve amount you first have to reduce the addresses`
@@ -59,133 +60,156 @@ MiniMeToken~\cite{Ref15} enforces the recommendation that allowances are first s
 % = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 \subsection{MonolithDAO}
+\label{sec:mdao}
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_09.png}
-	\caption{Functionality of default \texttt{approve} method in MonolithDAO token that enforces setting spender's allowance to zero before any non-zero values. It implements ERC20 recommendation for changes allowance from N to M in two steps (N$\rightarrow$0$\rightarrow$M).\label{fig:dao}}
+	\caption{Functionality of the \texttt{approve} method in MiniMeToken and MonolithDAO tokens, which are implemented slightly differently but effectively enforce setting spender's allowance in two steps: first to zero and then to any non-zero value (\eg N$\rightarrow$0$\rightarrow$M).\label{fig:dao}}
 \end{figure}
 
-MonolithDAO Token\cite{Ref12} (and its extension in OpenZeppelin~\cite{Ref10}) implements two additional functions for allowance increase\footnote{\texttt{increaseApproval(address \_spender, uint \_addedValue)}} or decrease\footnote{\texttt{decreaseApproval(address \_spender, uint \_subtractedValue)}}. The default \texttt{approve} function has additional codes to enforce the owner for setting allowance to zero before non-zero values. It allows non-zero spender's allowance if it is already set to zero (see Figure~\ref{fig:dao}). If the current spender’s allowance is non-zero, \texttt{decreaseApproval} and \texttt{increaseApproval} functions have to be used instead of standard \texttt{approve} method as explained below:
-\begin{enumerate}
-	\item Alice allows Bob to transfer N tokens by calling \texttt{approve(\_Bob, N)}. Alice used the default \texttt{approve} function consciously since current Bob’s allowance is 0. So, he checked Bob's allowance before calling \texttt{approve} method.
-	\item After a while, Alice decides to decrease Bob’s approval by M and runs \texttt{decreaseApproval(\_Bob, M)}.
-	\item Bob notices Alice’s second transaction and front runs it by executing \texttt{transferFrom(\_Alice, \_Bob, N)}.
-	\item Bob’s transaction will be executed first and transfers N token to his account and the his allowance becomes 0 as result of this transfer.
-	\item Alice’s transaction is mined after Bob’s transaction and tries to decrease Bob’s allowance by M. If Bob had already transferred more than M tokens, new Bob’s allowance becomes negative and it fails the transaction. So, the transaction does not change Bob’s remaining allowance and he would be able to transfer the rest (which is legitimate transfer since Alice has already approved it). If Bob had transferred less than M tokens, the new allowance will be applied and reduces Bob’s allowance by M.
-\end{enumerate}
-\noindent Although these two new complementary functions prevent the attack, they have not been defined in the initial specifications of ERC20 standard. Therefore, they can not be used by smart contracts that are already deployed on the Ethereum network and still call \texttt{approve} method for setting new allowance---and not \texttt{increaseApproval} or \texttt{decreaseApproval}. Moreover, ERC20 specifications does not define any increase or decrease of allowance. It only allows setting new allowances without adjustment. For example, if Alice has approved Bob for 100 tokens and wants to set it to 80, the new allowance should be 80 while using decrease methods will set it to 20 (100 - 80 = 20). Comparatively, increase method sets new allowance to 180 while it has to set it to 80 again to be in-compliant with ERC20 specification. For these reasons, this solution would not be compatible with ERC20 standard and only is usable if approver or smart contract are aware of these supplementary methods.
+MonolithDAO Token~\cite{Ref12} (and its extension in OpenZeppelin~\cite{Ref10}) implement two additional functions for allowance increases and decreases: \texttt{increaseApproval} and \texttt{decreaseApproval}. Both take two parameters: the address of the approved spender and the amount to be added/subtracted from the spender's current approval. Additionally, the \texttt{approve} method is ERC20 compliant but has additional logic to enforce that owners either set the allowance to zero before non-zero values (see Figure~\ref{fig:dao}) or they use \texttt{decreaseApproval} and \texttt{increaseApproval} instead of \texttt{approve}. Forcing a set to zero is enforced the same way as in MiniMeToken~\ref{sec:MiniMeToken}). Consider the following transaction sequence:
 
- example implements a workaround at the contract level by adding extra functionality that is not part of the standard. Their solution is to add two new functions for increasing and decreasing the approved value, hence not fixing the standard functions
+\begin{enumerate}
+	\item Alice allows Bob to transfer N of Alice's tokens by broadcasting \texttt{approve(\_Bob, N)}. 
+	\item Remark: Alice can use the default \texttt{approve} method since Bob’s allowance was initially 0.
+	\item Alice increases Bob’s allowance to M. \texttt{approve(\_Bob, M)} will fail because Bob's allowance is non-zero. Alice broadcasts \texttt{increaseApproval(\_Bob, M-N)}.
+	\item Bob front-runs this by broadcasting \texttt{transferFrom(\_Alice, \_Bob, N)}.
+	\item If Bob's transaction is confirmed first, he will transfer N tokens but this is legitimate as he was approved for N, and his approval is set to 0.
+	\item Alice's transaction will adjust Bob's approval from 0 to M-N. In total, Bob can spend N+M-N = M tokens as intended.
+	\item Remark: for decreases, decreaseApproval will similarly prevent the attack by reducing Bob's allowance instead of setting it to a particular value.
+\end{enumerate}
+
+Although these two new complementary functions do prevent the attack, they have not been defined in the initial specifications of ERC20 standard. Therefore, these safer functions will not be used by ERC20-compliant web apps and smart contracts that are already deployed. Such deployments will continue to use \texttt{approve} which suffers the same issue as MiniMeToken: set to zero does not always mitigate the attack. 
+
+% Jeremy: I guess below means that someone just passes the approve parameters to the other function but I doubt anyone would blindly do that so removing it for now
+%For example, if Alice has approved Bob for 100 tokens and wants to set it to 80, the new allowance should be 80 while using decrease methods will set it to 20 (100 - 80 = 20). Comparatively, increase method sets new allowance to 180 while it has to set it to 80 again to be in-compliant with ERC20 specification.
 
 % = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 \subsection{Detecting token transfers}
-In order to set new allowance atomically, tracking of transferred tokens is required to detect token transfers before setting new allowances. If \texttt{approve} method reveals any transferred tokens due to front running, it throws an exception without setting new allowance. As suggested by \cite{Ref17}, a flag can be used to detect whether any token has been transferred or not. \texttt{transferFrom} method sets this flag to \texttt{true} in case of any token transfer. \texttt{approve} method checks the flag to be \texttt{false} before allowing new approvals. This approach requires new data structure to keep track of used/transferred tokens for each spender. It can prevent front-running in the below scenario:
-\begin{enumerate}
-	\item Alice runs \texttt{approve(\_Bob, N)} to allow Bob for transferring N tokens. Since Bob’s initial allowance is 0 and his corresponding flag=\texttt{false}, then sanity check passes and Bob’s allowance sets to N (line 16).
-	\item Alice decides to set Bob’s allowance to 0 by executing \texttt{approve(\_Bob, 0)}.
-	\item Bob front-runs Alice’s transaction and transfers N tokens. Then, \texttt{transferFrom} turns his flag to \texttt{true}.
-	\item Alice’s transaction is mined and passes sanity check because passed value is 0 in line 15.
-	\item Bob’s allowance is set to 0 while his flag remains \texttt{true}. (\texttt{approve} method does not flip spender flags.)
-	\item Alice wants to change Bob’s allowance to M by executing \texttt{approve(\_Bob, M)}. Since Bob already transferred N tokens (his flag=\texttt{true}), then transaction fails.
-	\item Bob’s allowance does not change and he cannot move more tokens than initially allowed.
-\end{enumerate}
-\noindent Although this approach mitigates the attack, but it prevents any further legitimate approvals as well. Considering a scenario that Alice rightfully wants to increase Bob’s allowance from N to M (two non-zero values). If Bob had already transferred number of tokens, Alice would not be able to change his approval. Because Bob's flag is set to \texttt{true} and line 15 does not allow changing allowance by throwing an exception (see Figure~\ref{fig:det}).
+
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_33.png}
-	\caption{\texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change. However, this change makes attack mitigation ineffective.\label{fig:det}}
+	\caption{Detecting token transfers: \texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change. However, this change makes attack mitigation ineffective.\label{fig:det}}
 \end{figure}
-\begin{comment}
-function approve(address _spender, uint _value) public returns (bool success) {
-	require((_value == 0) || (allowed[msg.sender][_spender].amount == 0 && !allowed[msg.sender][_spender].used));
-	allowed[msg.sender][_spender].amount=_value;
-	Approval(msg.sender,_spender,_value);
-	return true;
-}
-\end{comment}
-\noindent Even setting allowance to 0 and then to M, does not flip the flag to \texttt{false} (There is no code for it in the \texttt{approve} method). So, It keeps Bob’s allowance locked down and blocked further legitimate allowances. In fact, \texttt{approve} method needs a new code between lines 16 and 17 to set the flag to \texttt{false}. But it will cause another problem. After setting allowance to 0, spender flag becomes \texttt{false} and allows non-zero values even if tokens have been already transferred. Considering front-running by Bob in the below scenario:
+
+The next approach \cite{Ref17} maintains a small state machine to enforce prevent approvals preceded by transfers. We revisit and elaborate on this approach in our own solution in Section~\ref{sec:proposal1}. In this proposal, the implementation of \texttt{approve} is augmented with a flag (one flag for each pair of owners and approved spenders) that can be set in \texttt{transferFrom}. \texttt{transferFrom} sets the flag to \texttt{true} after any token transfer and the \texttt{approve} method requires the flag to be \texttt{false} before allowing new approvals. This approach requires a new data structure, can prevent front-running, but also has a deadlock scenario. Consider the following transaction sequence:
+
+\begin{enumerate}
+	\item Alice allows Bob to transfer N of Alice's tokens by broadcasting \texttt{approve(\_Bob, N)}. 
+	\item Remark: This succeeds because Bob’s allowance was initially 0 and his corresponding flag=\texttt{false} (see line 16 in Figure~\ref{fig:det}).
+	\item Alice decreases Bob's allowance to 0 by broadcasting \texttt{approve(\_Bob, 0)}.
+	\item Bob front-runs this by broadcasting \texttt{transferFrom(\_Alice, \_Bob, N)}.
+	\item If Bob's transaction is confirmed first, Bob's \texttt{transferFrom} turns his flag to \texttt{true}.
+	\item Alice’s transaction is confirmed, passes the check because passed value is 0 (line 15), and Bob’s allowance is set to 0 while his flag remains \texttt{true}.
+	\item Remark: Critically the \texttt{approve} method does not flip the spender's flag.
+	\item Alice wants to change Bob’s allowance to M and broadcasts \texttt{approve(\_Bob, M)}. 
+	\item Since Bob already transferred N tokens and his flag=\texttt{true}, the transaction fails.
+	\item Remark: Bob’s allowance is 0 and it cannot not change so he is locked out of further approvals.
+\end{enumerate}
+
+%function approve(address _spender, uint _value) public returns (bool success) {
+%	require((_value == 0) || (allowed[msg.sender][_spender].amount == 0 && !allowed[msg.sender][_spender].used));
+%	allowed[msg.sender][_spender].amount=_value;
+%	Approval(msg.sender,_spender,_value);
+%	return true;
+%}
+
+Although this approach mitigates the attack, it prevents any further legitimate approvals. Consider a scenario where Alice wants to increase Bob’s allowance from N to M (two non-zero values). If Bob has already transferred number of tokens, Alice would not be able to change his approval. Because Bob's flag is set to \texttt{true} and line 15 in Figure~\ref{fig:det} does not allow changing the allowance, an exception is thrown. A potential bypass is to set the allowance to 0 and then to M. However this transaction sequence never flips the flag to \texttt{false} (there is no code for it in the \texttt{approve} method). So it keeps Bob locked out of any further legitimate allowances. A quick fix might be having \texttt{approve} set the flag to \texttt{false} (\ie between lines 16 and 17). But this will cause another problem: after setting the allowance to 0, the spender flag becomes \texttt{false}, and allows non-zero values even if tokens have been already transferred. This will no longer prevent multiple withdrawals as demonstrated in the following transaction sequence:
+
 \begin{enumerate}
 	\item Alice changes Bob's allowance from N to 0.
-	\item Bob transfers N tokens before allowance change and his \texttt{used} flag turns to \texttt{true}.
-	\item Alice's transaction is successful since \texttt{\_value=0}. (The second condition is not evaluated although \texttt{used} flag is \texttt{true}).
-	\item Alice transaction turns \texttt{used} flag to \texttt{false} and sets Bob's allowance to 0. 
-	\item Now Alice wants to set Bob's allowance from 0 to M, His flag is \texttt{false} and allowance is 0. So, Alice cannot distinguish whether Bob moved any token or not. Setting new allowance will allow Bob to transfer more tokens than Alice wanted.
+	\item Bob transfers N tokens before the allowance change and his \texttt{used} flag turns to \texttt{true}.
+	\item Alice's transaction is successful since \texttt{\_value=0}. 
+	\item Remark: The second condition is not evaluated although \texttt{used} flag is \texttt{true}.
+	\item Alice's transaction turns \texttt{used} flag to \texttt{false} and sets Bob's allowance to 0. 
+	\item Now Alice wants to set Bob's allowance from 0 to M, his flag is \texttt{false} and allowance is 0. 
+	\item Remark: Alice cannot distinguish whether Bob moved any token or not. Setting a new allowance will allow Bob to transfer more tokens than Alice wanted.
 \end{enumerate}
-In fact, resetting the flag in \texttt{approve} method will not fix the issue and makes attack mitigation ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new variable to track transferred tokens.\newline
+
+In fact, resetting the flag in \texttt{approve} method will not fix the issue and makes attack mitigation ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new state to track transferred tokens if a solution is to be found.
 
 % = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 \subsection{Keeping track of remaining tokens}
-This approach\cite{Ref18} is inspired by the previous solution and keeping track of remaining tokens instead of detecting transferred tokens. \texttt{approve} method uses these variables to set allowance accordingly. It uses modified version of data structure that used in the previous solution for storing residual tokens (see Figure~\ref{fig:track}).
+
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_29.png}
-	\caption{Keeping track of remaining tokens by introducing new data structure.\label{fig:track}}
+	\caption{Keeping track of remaining tokens by introducing a new data structure.\label{fig:track}}
 \end{figure}
-\begin{comment}
-struct Allowance {
-	uint initial;
-	uint residual;
-}
 
-mapping(address => mapping(address => Allowance)) public allowances;
+This approach~\cite{Ref18} is inspired by the previous solution of detecting token transfers by introducing new state in the contract. It keeps track of the remaining tokens, and an ERC20-compliant \texttt{approve} method uses these variables to set allowances accordingly (see Figure~\ref{fig:track}).
 
-function approve(address spender, uint amount) public returns (bool) {
-	Allowance storage _allowance = allowances[msg.sender][spender];
-	
-	// This test should not be necessary.
-	uint spent = _allowance.initial > _allowance.residual
-	? _allowance.initial - _allowance.residual
-	: 0;
-	
-	_allowance.initial = amount;
-	_allowance.residual = spent < amount ? amount - spent : 0;
-	
-	Approval(msg.sender, spender, _allowance.residual);
-	
-	return true;
-}
+%struct Allowance {
+%	uint initial;
+%	uint residual;
+%}
+%
+%mapping(address => mapping(address => Allowance)) public allowances;
+%
+%function approve(address spender, uint amount) public returns (bool) {
+%	Allowance storage _allowance = allowances[msg.sender][spender];
+%	
+%	// This test should not be necessary.
+%	uint spent = _allowance.initial > _allowance.residual
+%	? _allowance.initial - _allowance.residual
+%	: 0;
+%	
+%	_allowance.initial = amount;
+%	_allowance.residual = spent < amount ? amount - spent : 0;
+%	
+%	Approval(msg.sender, spender, _allowance.residual);
+%	
+%	return true;
+%}
+%
+%function allowance(address holder, address spender) public view returns (uint) {
+%	return allowances[holder][spender].residual;
+%}
+%
+%function transferFrom(address holder, uint amount) public returns (bool) {
+%	uint residual = allowance(holder, msg.sender);
+%	
+%	require(amount <= residual);
+%	
+%	allowances[holder][msg.sender].residual = residual - amount;
+%	
+%	// ... do the token transfer
+%	
+%	return true;
+%}
 
-function allowance(address holder, address spender) public view returns (uint) {
-	return allowances[holder][spender].residual;
-}
+At a first glance, it seems to be a promising solution by more effectively enforcing approvals to zero before non-zero values. However, the highlighted code in \texttt{approve} method resembles the situation that is explained in~\ref{sec:enfui}. In case of front-running, both \texttt{initial} and \texttt{residual} variables will be zero and it would not be possible for Alice to distinguish if any token transfer have occurred due to her allowance change or due to Bob transferring a token. To illustrate this, considering the following transaction sequence:
 
-function transferFrom(address holder, uint amount) public returns (bool) {
-	uint residual = allowance(holder, msg.sender);
-	
-	require(amount <= residual);
-	
-	allowances[holder][msg.sender].residual = residual - amount;
-	
-	// ... do the token transfer
-	
-	return true;
-}
-\end{comment}
-\noindent At the first look, it seems to be a promising solution by setting approval to zero before non-zero values. However, the highlighted code in \texttt{approve} method resembles the situation that is explained in~\ref{sec:enfui}. In case of front-running, both \texttt{initial} and \texttt{residual} variables will be zero and it would not be possible for Alice to distinguish if any token transfer have occurred due to her allowance change or Bob token transfer. To make it more clear, considering the below scenario:  
 \begin{enumerate}
-	\item Bob’s allowance is initially zero (\texttt{allowances[\_Alice][\_Bob].initial=0}) and his residual is zero as well (\texttt{allowances[\_Alice][\_Bob].residual=0}).
-	\item Alice allows Bob to transfer N tokens that makes \texttt{allowances[\_Alice][\_Bob].initial=N} and \texttt{allowances[\_Alice][\_Bob].residual=N}.
-	\item Alice decides to change Bob’s allowance to M and has to set it to zero before any non-zero.
-	\item Bob noticed Alice’s transaction for setting his allowance to zero and transfers N tokens in advance. Consequently, \texttt{transferFrom} function sets his residual to zero (\texttt{allowances[\_Alice][\_Bob].residual=0}).
-	\item Alice’s transaction for setting Bob's allowance to zero is mined and sets \texttt{allowances[\_Alice][\_Bob].initial=0} and \texttt{allowances[\_Alice][\_Bob].residual=0} This is similar to step 1 that no token has been transferred. So, Alice would not be able to distinguish whether any token have been transferred or not.
-	\item Considering no token transfer by Bob, Alice approves Bob for spending new M tokens.
-	\item Bob is able to transfer new M tokes in addition to initial N tokens.\newline
+	\item Remark: For formatting reasons, we abbreviate \texttt{allowances[\_Alice][\_Bob].initial} as \texttt{AB.initial}.
+	\item Bob’s allowance is initially zero (\texttt{AB.initial=0}) and his residual is zero as well (\texttt{AB.residual=0}).
+	\item Alice allows Bob to transfer N tokens and makes \texttt{AB.initial=N} and \texttt{AB.residual=N}.
+	\item Alice decides to change Bob’s allowance to M and has to set it to zero before M.
+	\item Bob notices Alice’s broadcast for setting his allowance to 0 and frontruns it with a transfer of N tokens.
+	\item Consequently, the \texttt{transferFrom} function sets his residual to zero (\texttt{AB.residual=0}).
+	\item Alice’s transaction for setting Bob's allowance to 0 is confirmed and sets \texttt{AB.initial=0} and \texttt{AB.residual=0}.
+	\item Remark: at this stage, the state is indistinguishable from Step 2. Alice cannot distinguish whether any token have been transferred or not based on \texttt{AB.initial} and \texttt{AB.residual}. 
+	\item Alice approves Bob for spending new M tokens and Bob is able to transfer new M tokes in addition to initial N tokens.
 \end{enumerate}
-Someone may think of using \texttt{Transfer} event to detect transferred tokens or checking approver balance to see any transferred tokens. As explained in~\ref{sec:enfui}, using \texttt{Transfer} event is not sufficient in case of transferring tokens to a third party. Checking approver balance also would not be an accurate way if the contract is busy and there are lot of transfers. So, it would be difficult for the approver to detect legitimate from non-legitimate tokens transfers. Overall, this approach cannot prevent the attack.
+
+It is true that at Step 8, a transfer event as been recorded as a result of step 5. However transfer events are ambiguous as described in Section~\ref{sec:enfui}. Thus it is not always possible for the approver to detect legitimate from non-legitimate tokens transfers. Overall, this approach cannot prevent the attack in all scenarios. 
 
 % = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 \subsection{Overloading Approve}
 \label{sec:overload}
+
+% Jeremy: used to be
 %\subsection{Changing the ERC20 API}
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/multiple_withdrawal_12.png}
-	\caption{Suggested ERC20 API Change by adding new \texttt{approve} method with three parameters to compare and set new allowance atomically.\label{fig:api}}
+	\caption{An overloaded approve method adds a method with three parameters to compare and set new allowance atomically.\label{fig:api}}
 \end{figure}
 
 As advised by \cite{Ref03}, a secure \texttt{approve} method could take one additional parameter: the expected allowance of the spender when the adjustment to the approval is made. Under this proposal, the adjustment succeeds only if the passed expected allowance matches the spender's actual allowance, and fails otherwise. Consider a multiple withdrawal attack where Bob is approved for N of Alice's tokens, Alice adjusts his approval from N to M tokens, and Bob frontruns the approval with a transfer of N tokens. Alice's approval will specify N as the current expected allowance when adjusting it to M. Because Bob's transfer of N tokens changes his approval to 0, Alice's approval will fail because it expects an allowance of N when the allowance is 0. This allows atomic compare and set of the spender's allowance to make the attack impossible. 

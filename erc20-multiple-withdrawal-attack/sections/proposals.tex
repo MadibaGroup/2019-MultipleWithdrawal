@@ -4,7 +4,8 @@
 
 By this point, we have discussed 10 solutions to the multiple withdrawal attack and we evaluated them in terms of compatibility with the standard and attack mitigation (recall the summary in Table~\ref{tab:comp}). Since none of them precisely satisfy the constraints of ERC20 standard, we now propose two new solutions to mitigate the attack.
 
-\subsection{Proposal 1: Securing \texttt{approve} method}\label{sec:proposal1}
+\subsection{Proposal 1: Securing \texttt{approve} method}
+\label{sec:proposal1}
 
 %Securing \texttt{approve} method could be a solution and prevent the attack. By using compare and set (CAS) pattern \cite{Ref06}, \texttt{approve} method can change spender allowance from N to M atomically (\ie comparing new allowance with transferred token and set it accordingly). Comparison part of CAS requires knowledge of previously transferred tokens that will reveal any token transfer in case of front-running. Although this is promising approach,  setting new allowance in \texttt{approve} method must satisfy ERC20 constraint that dictates "If this function is called again it overwrites the current allowance with \texttt{\_value}" \cite{Ref08}. This does not allow any adjustments in allowance while it is a prerequisite for securing \texttt{approve} method. 
 
