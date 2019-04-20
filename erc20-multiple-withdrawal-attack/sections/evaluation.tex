@@ -20,11 +20,11 @@ The first solution is enforcement at the user interface level. We discussed this
 
 \begin{enumerate}
 	\item Alice allows Bob to transfer N of her tokens.
-	\item Alice's client broadcasts an allowance of 0 for Bob (N$\rightarrow$0).
+	\item Alice's client broadcasts an allowance of 0.
 	\item Bob broadcasts a competing transaction to transfer N of Alice’s tokens.
 	\item Bob's transaction front-runs Alice's, is confirmed, and sets Bob’s allowance to 0 (from N).
 	\item Alice’s transaction is confirmed and sets Bob’s allowance to 0 (from 0).
-	\item Alice's client broadcasts an allowance of M for Bob (0$\rightarrow$M).
+	\item Alice's client broadcasts an allowance of M.
 	\item Alice’s second transaction is confirmed and sets Bob's allowance to M.
 	\item Bob transfers M of Alice’s tokens for a total of N+M tokens.
 \end{enumerate}
@@ -78,12 +78,12 @@ Although these two new complementary functions do prevent the attack, they have 
 	\caption{In \textit{``Detecting token transfers''}, the \texttt{approve} method needs to be modified by adding a line of code like \texttt{allowed[msg.sender][\_spender].used = false;} between lines 16 and 17 to unlock spender flag for the next legitimate change. However, this change makes attack mitigation ineffective.\label{fig:det}}
 \end{figure}
 
-The next approach \cite{Ref17} maintains a small state machine to enforce prevent approvals preceded by transfers. We revisit and elaborate on this approach in our own solution in Section~\ref{sec:proposal1}. In this proposal, the implementation of \texttt{approve} is augmented with a flag (one flag for each pair of owners and approved spenders) that can be set in \texttt{transferFrom} function. \texttt{transferFrom} sets the flag to \texttt{true} after any token transfer and the \texttt{approve} method requires the flag to be \texttt{false} before allowing new approvals. This approach requires a new data structure, can prevent front-running, but also has a deadlock scenario. Consider the following transaction sequence:
+The next approach \cite{Ref17} maintains a small state machine to enforce prevent approvals preceded by transfers. We revisit and elaborate on this approach in our own solution in Section~\ref{sec:proposal1}. In this proposal, the implementation of \texttt{approve} is augmented with a flag (one flag for each pair of owners and approved spenders) that can be set in \texttt{transferFrom} function. \texttt{transferFrom} sets the flag to \texttt{true} after any token transfer and the \texttt{approve} method requires the flag to be \texttt{false} before allowing new approvals. This approach requires a new data structure, can prevent front-running, but also has a deadlock scenario. Consider the following scenario:
 
 \begin{enumerate}
-	\item Alice allows Bob to transfer N tokens by broadcasting \texttt{approve(\_Bob, N)}. This succeeds because Bob’s allowance was initially 0 and his corresponding flag=\texttt{false} (see line 15 in Figure~\ref{fig:det}).
+	\item Alice allows Bob to transfer N tokens by broadcasting \texttt{approve(\_Bob, N)}. This succeeds because Bob’s allowance was initially 0 and his corresponding flag=\texttt{false} (line 15 in Figure~\ref{fig:det}).
 	\item Bob legitimately withdraws N tokens by calling \texttt{transferFrom(\_Alice, \_Bob, N)}.
-	\item Alice decides to increase Bob's allowance to M by broadcasting \texttt{approve(\_Bob, 0)} ---settings to zero first is recommended by the standard.
+	\item Alice decides to increase Bob's allowance to M by broadcasting \texttt{approve(\_Bob, 0)}.
 	\item Since Bob's transaction is confirmed first, \texttt{transferFrom} turns his flag to \texttt{true}.
 	\item Alice’s transaction is confirmed, passes the check because input value is 0 (line 15), and Bob’s allowance is set to 0 while his flag remains \texttt{true}. Critically, the \texttt{approve} method does not flip the spender's flag.
 	\item Alice wants to change Bob’s allowance to M and broadcasts \texttt{approve(\_Bob, M)}. 
@@ -99,7 +99,7 @@ Although this approach mitigates the attack, it prevents any further legitimate 
 	\item Alice's transaction is successful since input \texttt{\_value} is 0. The second condition is not evaluated although \texttt{used} flag is \texttt{true}.
 	\item Alice's transaction turns \texttt{used} flag to \texttt{false} and sets Bob's allowance to 0. 
 	\item Now Alice wants to set Bob's allowance from 0 to M, his flag is \texttt{false} and allowance is 0. 
-	\item Remark: Alice cannot distinguish whether Bob moved any token or not. Setting a new allowance will allow Bob to transfer more tokens than Alice wanted.
+	\item Remark: Alice cannot distinguish whether Bob moved any token or not. Setting a new allowance will allow Bob to transfer more tokens.
 \end{enumerate}
 
 In fact, resetting the flag in \texttt{approve} method will not fix the issue and makes attack mitigation ineffective. In short, this approach can not satisfy both legitimate and non-legitimate scenarios. Nevertheless, it is a step forward by introducing the need for a new state to track transferred tokens if a solution is to be found.
@@ -122,7 +122,7 @@ At a first glance, it seems to be a promising solution by more effectively enfor
 	\item Bob’s allowance is initially zero (\texttt{AB.initial=0}) and his residual is zero as well (\texttt{AB.residual=0}).
 	\item Alice allows Bob to transfer N tokens and makes \texttt{AB.initial=N} and \texttt{AB.residual=N}.
 	\item Alice decides to change Bob’s allowance to M and has to set it to zero before M.
-	\item Bob notices Alice’s broadcast for setting his allowance to 0 and front-runs it with a transfer of N tokens.
+	\item Bob notices Alice’s broadcast and front-runs it with a transfer of N tokens.
 	\item Consequently, the \texttt{transferFrom} function sets his residual to zero (\texttt{AB.residual=0}).
 	\item Alice’s transaction for setting Bob's allowance to 0 is confirmed and sets \texttt{AB.initial=0} and \texttt{AB.residual=0}.
 	\item Remark: at this stage, the state is indistinguishable from Step 1. Alice cannot distinguish whether any token have been transferred or not based on \texttt{AB.initial} and \texttt{AB.residual}. 
@@ -173,7 +173,7 @@ Rather than adding new methods to ERC20, methods can be also be taken away. As s
 
 \begin{table*}
 \centering
-\def\arraystretch{1.5}% 
+\def\arraystretch{1.2}% 
 \begin{tabular}{|m{1.8cm}|m{14.5cm}|}
 	\hline\centering
 	\textbf{Token Standard} & \textbf{A description of non-compliance with ERC20}\\
