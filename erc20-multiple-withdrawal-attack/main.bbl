@@ -1,7 +1,5 @@
 \begin{thebibliography}{10}
 \footnotesize
-
-
 \bibitem{Ref00}
 Ethereum.
 \newblock {Ethereum project repository}.
@@ -65,6 +63,12 @@ Friedhelm Victor and Bianca~Katharina L{\"u}ders.
 \newblock In {\em International Conference on Financial Cryptography and Data
   Security}, 2019.
 
+\bibitem{Ref23}
+Jacques Dafflon, Jordi Baylina, and Thomas Shababi.
+\newblock {EIP 777: A New Advanced Token Standard}.
+\newblock \url{https://eips.ethereum.org/EIPS/eip-777}, November 2017.
+\newblock [Online; accessed 12-Jan-2019].
+
 \bibitem{frowis2018detecting}
 Michael Fr{\"o}wis, Andreas Fuchs, and Rainer B{\"o}hme.
 \newblock Detecting token systems on ethereum.
@@ -83,14 +87,6 @@ Peter Vessenes.
 \newblock {MonolithDAO/token}.
 \newblock \url{https://github.com/MonolithDAO/token/blob/master/src/Token.sol},
   April 2017.
-\newblock [Online; accessed 23-Dec-2018].
-
-\bibitem{Ref16}
-Enrique Chavez.
-\newblock {StandardToken.sol}.
-\newblock
-  \url{https://github.com/kindads/erc20-token/blob/40d796627a2edd6387bdeb9df71a8209367a7ee9/contracts/zeppelin-solidity/contracts/token/StandardToken.sol},
-  March 2018.
 \newblock [Online; accessed 23-Dec-2018].
 
 \bibitem{Ref17}
@@ -117,11 +113,13 @@ M.~Vladimirov and D.~Khovratovich.
   November 2016.
 \newblock [Online; accessed 25-Nov-2018].
 
-\bibitem{Ref05}
-Ethereum Project.
-\newblock {Create your own crypto-currency)}.
-\newblock \url{https://www.ethereum.org/token}, December 2017.
-\newblock [Online; accessed 01-Dec-2018].
+\bibitem{Ref16}
+Enrique Chavez.
+\newblock {StandardToken.sol}.
+\newblock
+  \url{https://github.com/kindads/erc20-token/blob/40d796627a2edd6387bdeb9df71a8209367a7ee9/contracts/zeppelin-solidity/contracts/token/StandardToken.sol},
+  March 2018.
+\newblock [Online; accessed 23-Dec-2018].
 
 \bibitem{Ref20}
 Dexaran.
@@ -140,12 +138,6 @@ William Entriken, Dieter Shirley, Jacob Evans, and Nastassia Sachs.
 \newblock {ERC-721 Non-Fungible Token Standard}.
 \newblock \url{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md},
   January 2018.
-\newblock [Online; accessed 12-Jan-2019].
-
-\bibitem{Ref23}
-Jacques Dafflon, Jordi Baylina, and Thomas Shababi.
-\newblock {EIP 777: A New Advanced Token Standard}.
-\newblock \url{https://eips.ethereum.org/EIPS/eip-777}, November 2017.
 \newblock [Online; accessed 12-Jan-2019].
 
 \bibitem{Ref24}
