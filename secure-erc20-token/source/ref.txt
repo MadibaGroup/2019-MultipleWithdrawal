@@ -1,0 +1,5 @@
+https://solidity.readthedocs.io/en/develop/contracts.html#visibility-and-getters
+https://ethereum.stackexchange.com/questions/19380/external-vs-public-best-practices
+https://medium.com/@gus_tavo_guim/public-vs-external-functions-in-solidity-b46bcf0ba3ac
+https://medium.com/upstate-interactive/solidity-how-to-know-when-to-use-abstract-contracts-vs-interfaces-874cab860c56
+https://ethereum.stackexchange.com/questions/42448/what-is-the-difference-between-an-abstract-contract-and-an-interface
