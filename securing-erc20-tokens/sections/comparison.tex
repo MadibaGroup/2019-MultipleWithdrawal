@@ -1,0 +1,34 @@
+% !TEX root = ../main.tex
+
+\section{Comparing audits}
+In section~\ref{section:ver}, we checked security of the proposed ERC20 token (EST) by using auditing tools. In this section, we repeat the same process on the top 10 tokens based on their market cap\cite{EtherScan}. Result of all these evaluation has been summarized in table~\ref{tab:summary}. False positives are considered as failed audits to have the same evaluation conditions across all tokens. Since each tool use different analysis methods, number of occurrences are considered for comparisons. For example, MythX detects two re-entrancy attack in EST, therefore, two occurrences are counted instead of one. 
+
+\begin{figure}[t!]
+	\centering
+	\includegraphics[width=1.0\linewidth]{figures/chart.png}
+	\label{fig:chart}
+\end{figure}
+
+\begin{table}[t!]
+	\def\arraystretch{1.35}
+	\resizebox{\columnwidth}{!}{
+		\begin{tabular}{|l|c|c|c|c|c|c|c|c|}\hline
+			& \multicolumn{6}{c}{\textbf{Auditing tool}} & & \\\hline
+			\textbf{\shortstack{ERC20\\Token}} & \textbf{\shortstack{EY\\Review}} & \textbf{\shortstack{Smart\\Check}} & \textbf{\shortstack{Secu\\rify}} & \textbf{\shortstack{MythX\\(Mythril)}} & \textbf{\shortstack{Contract\\Guard}} & \textbf{\shortstack{Slither}} & \textbf{\shortstack{Odin}} & \textbf{\shortstack{Total\\issues}} \\
+			\hline\centering EST & 9 & 11 & 4 & 2 & 10 & 2 & 2 & \textbf{40} \\
+			\hline\centering TUSD & 20 & 11 & 2 & 1 & 14 & 16 & 6 & \textbf{70} \\
+			\hline\centering PAX & 16 & 9 & 6 & 4 & 16 & 13 & 9 & \textbf{73} \\
+			\hline\centering USDC & 17 & 9 & 6 & 5 & 18 & 15 & 10 & \textbf{80} \\
+			\hline\centering INO & 11 & 10 & 14 & 8 & 14 & 24 & 12 & \textbf{93} \\
+			\hline\centering HEDG & 10 & 28 & 11 & 1 & 29 & 24 & 16 & \textbf{119} \\
+			\hline\centering BNB & 13 & 21 & 12 & 13 & 41 & 39 & 3 & \textbf{142} \\				
+			\hline\centering MKR & 11 & 27 & 38 & 9 & 16 & 34 & 18 & \textbf{153} \\	
+			\hline\centering LINK & 12 & 27 & 38 & 9 & 16 & 34 & 18 & \textbf{181} \\	
+			\hline\centering USDT & 12 & 29 & 8 & 17 & 46 & 55 & 30 & \textbf{197} \\	
+			\hline\centering LEO & 32 & 25 & 8 & 23 & 70 & 75 & 19 & \textbf{252} \\	
+			\hline
+	\end{tabular}}
+	\newline
+	\caption{Security flaws detected by 7 auditing tools in EST (the proposal) compared to top 10 ERC20 tokens. EST has the lowest reported security issues (occurrences). \label{tab:summary}}
+\end{table}
+

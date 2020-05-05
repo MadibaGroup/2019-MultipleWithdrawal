@@ -1,0 +1,28 @@
+% !TEX root = ../main.tex
+
+\section{ERC20 best practices}\label{section:bp}
+Best practices are techniques or rules that are accepted to develop the most effective smart contract. They used to maintain quality of code and a standard way of creating ERC20 tokens. Significant set of best practices have been accepted by the Ethereum community to proactively prevent known vulnerabilities \cite{TokenBP}. We examine most of them and integrate in the proposal.
+
+\subsubsection*{3.1. Compliance with ERC20}
+According to ERC20 specifications, all 6 methods must be implemented and they are not optional. Moreover, ignoring them will cause failed function calls by other applications (\ie crypto-wallets, exchanges, web services, etc) that expect to invoke these methods to query transferred tokens or balance of accounts. Tokens that are not implementing all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) will not be fully ERC20-compliant. We implement ERC20 required methods in addition to some complementary functions such as \texttt{sell()} and \texttt{buy()}. \texttt{sell()} allows token holders to exchange tokens for Ether and \texttt{buy()} accepts Ether by adjusting buyer's token balance.
+
+\subsubsection*{3.2. Firing events}
+In ERC20 standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event, logs any successful allowance change by token holders and the latter one, logs successful token transfers by \texttt{transfer} or \texttt{transferFrom} methods. These two events must be fired to notify external application on occurred changes. They might use them to update balances, show UI notifications or check new token approvals. In addition to the above logs, we define 6 extra events that are \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. They can be used to watch for events and react accordingly.
+
+\subsubsection*{3.3. External visibility}
+There are two types of \textit{function call} in Solidity\cite{SolidityDoc}: (i) Internal (ii) External. Internal function calls expect arguments to be in memory and EVM copies arguments to memory. This is because internal calls use opcodes (like JUMP) instead of creating \textit{EVM call}\footnote{Also known as "message call" when a contract calls a function of another contract.}. Conversely, External function calls create \textit{EVM call} and can read arguments directly from \texttt{calldata} space. It is cheaper than allocating new memory and designed as read-only byte-addressable space where the data parameter of a transaction or call is held\cite{EthInDepth}. As a best practice, using External functions are recommended if we expect that the function to be called externally. We considered this recommendation by replacing \texttt{Public} visibility marks by \texttt{External}.
+
+\subsubsection*{3.4. Fail-Safe Mode}
+Off-chain computations can be used to performs some self-checks on the ERC20 tokens. In case of detected anomaly/attack, functionality of the token can be put on hold until further investigations. To pause all functionalities, owner of the token can call \texttt{pause()} function. It then sets a variable and \texttt{notPaused} modifier forces it by throwing exception. We apply \texttt{notPaused} modifier on all external functions (\eg \texttt{transfer()}, \texttt{sell()}) to make sure that it would be safe to process external calls and the token is not paused.
+
+\subsubsection*{3.5. Global or Miner controlled variables}
+Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{tx.origin}, \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended not to use these variables. For example, \texttt{tx.origin} global variable can be compromised by a phishing attack. It is safer to use \texttt{msg.sender} which returns the transaction caller and not the original initiator. We do not use any of these variables for conditional execution, authentication or as the source of randomness.
+
+\subsubsection*{3.6. Proxy contract}
+Using proxy is one of the approaches to build upgradable ERC20 tokens. The proxy contract forwards function calls to another contract that can be updated \cite{ProxyContract}, \cite{ProxyPatterns}. Since the updated contract code can have vulnerabilities, the use of proxy contracts is not recommended.
+
+\subsubsection*{3.7. DoS with unexpected revert}
+In case of failure when sending fund to a large number of recipients, the entire transaction may fail and no fund will be transferred. This issue may be due to sending ETH to a contract that does not have \texttt{fallback()} function or reverts ETH transfers in the \texttt{fallback()} function. To prevent this situation, it is recommended to avoid transferring ETH to multiple addresses in a single transaction. Instead, isolate each external call into its own user-initiated transaction \cite{DosRevert}. In the proposal, we use \texttt{sell()} function to send ETH back to the seller of the token. There is no batch transfer in the function and in case of failure, it affects only the seller.
+
+\subsubsection*{3.8. DoS with block gas limit}
+The use of loops in contracts is not efficient and requires considerable amount of Gas to execute. It might also cause DoS attack since blocks has a \textit{Gas limit}. If execution of a function exceeds the block gas limit, all transactions in that block will not be executed. Hence, we do not use loops and rely on \texttt{mappings} variables. They store data in collection of key value pairs and are more efficient than arrays.

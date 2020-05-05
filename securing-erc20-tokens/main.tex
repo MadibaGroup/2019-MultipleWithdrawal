@@ -1,0 +1,40 @@
+\documentclass[conference,compsoc]{IEEEtran}
+%\IEEEoverridecommandlockouts
+
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage[singlelinecheck=false]{caption}
+\captionsetup{font=footnotesize}
+\input{setup/packages}
+\input{setup/macros}
+
+%\IEEEpubid{\makebox[\columnwidth]{} \hspace{\columnsep}\makebox[\columnwidth]{ }}
+%=====================================================================================
+\begin{document}
+
+\title{Securing ERC20 Tokens in Ethereum blockchain}
+\author{
+	\IEEEauthorblockN{ }
+	\IEEEauthorblockA{ }
+}
+
+\maketitle
+
+%\IEEEpubidadjcol	
+%==========================================%
+\input{sections/abstract}		
+\IEEEpeerreviewmaketitle
+%==========================================%
+\input{sections/introduction}
+\input{sections/vulnerabilities}
+\input{sections/bestpractices}
+\input{sections/proposal}
+\input{sections/verification}
+\input{sections/comparison}
+\input{sections/conclusion}
+%==========================================%
+\bibliographystyle{unsrt}
+\bibliography{references}
+%==========================================%
+\end{document}
