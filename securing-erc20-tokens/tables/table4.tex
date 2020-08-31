@@ -1,0 +1,128 @@
+% !TEX root = ../main.tex
+
+\newcommand{\BP}{BP}
+\newcommand{\falsepos}{$\oplus$}
+\newcommand{\failed}{$\times$}
+\newcommand{\noSWC}{$\bigcirc$} 
+\newcommand{\notcovered}{}
+\newcommand{\passed}{$\checkmark$}
+
+
+\begin{table*}
+\centering
+\begin{adjustbox}{max height=10cm}
+\begin{tabular}{|c|c|m{9cm}|c|c|c|c|c|c|c|}
+
+\multicolumn{3}{c}{\.} &
+\headrow{EY Review} &
+\headrow{Smart Check} &
+\headrow{Securify} &
+\headrow{MythX (Mythril)} &
+\headrow{Contract Guard} &
+\headrow{Slither} &
+\headrow{Odin} \\ \hline
+
+\textbf{ID} & 
+\textbf{SWC} & 
+\textbf{Vulnerability or best practice \newline Mitigation or recommendation} &  
+\multicolumn{7}{c|}{\textbf{Tool}} \\
+\hline
+			\hline\centering 1 & 100 & Function default visibility \newline Specifying function visibility & \notcovered & \passed & \notcovered & \passed & \passed & \notcovered & \passed \\
+			\hline\centering 2 & 101 & Integer Overflow and Underflow \newline Using SafeMath & \falsepos & \passed & \notcovered & \passed & \passed & \notcovered & \passed \\
+			\hline\centering 3 & 102 & Outdated Compiler Version \newline Using proper Solidity version & \passed & \passed & \passed & \passed & \passed & \passed & \failed \\
+			\hline\centering 4 & 103 & Floating Pragma \newline Locking the pragma version & \notcovered & \passed & \passed & \passed & \notcovered & \passed & \passed \\
+			\hline\centering 5 & 104 & Unchecked Call Return Value \newline Checking call() return value & \passed & \notcovered & \passed & \passed & \passed & \passed & \passed \\
+			\hline\centering 6 & 105 & Unprotected Ether Withdrawal \newline Authorizing trusted parties & \notcovered & \failed & \notcovered & \passed & \notcovered & \passed & \passed \\
+			\hline\centering 7 & 106 & Unprotected SELFDESTRUCT Instruction \newline Approving by multiple parties & \notcovered & \notcovered & \passed & \passed & \notcovered & \passed & \passed \\
+			\hline\centering 8 & 107 & Re-entrancy \newline Using CEI or Mutex & \notcovered & \passed & \falsepos & \falsepos & \falsepos & \passed & \passed \\
+			\hline\centering 9 & 108 & State variable default visibility \newline Specifying variable visibility & \passed & \failed & \passed & \passed & \passed & \notcovered & \passed \\
+			\hline\centering 10 & 109 & Uninitialized Storage Pointer \newline Initializing upon declaration & \notcovered & \notcovered & \passed & \passed & \passed & \passed & \passed \\
+			\hline\centering 11 & 110 & Assert Violation \newline Using require() statement & \notcovered & \passed & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 12 & 111 & Use of Deprecated Solidity Functions \newline Using new alternatives & \notcovered & \passed & \notcovered & \passed & \passed & \passed & \passed \\
+			\hline\centering 13 & 112 & Delegatecall to untrusted callee \newline Using for trusted contracts & \notcovered & \failed & \falsepos & \passed & \passed & \passed & \passed \\
+			\hline\centering 14 & 113 & DoS with Failed Call \newline Avoid multiple external calls & \notcovered & \passed & \notcovered & \passed & \passed & \notcovered & \passed \\				
+			\hline\centering 15 & 114 & Transaction Order Dependence \newline Preventing race conditions & \falsepos & \notcovered & \passed & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 16 & 115 & Authorization through tx.origin \newline Using msg.sender instead & \passed & \passed & \passed & \passed & \passed & \passed & \passed \\		
+			\hline\centering 17 & 116 & Block values as a proxy for time \newline Using oracles instead of block number & \passed & \passed & \passed & \passed & \passed & \notcovered & \passed \\
+			\hline\centering 18 & 117 & Signature Malleability \newline Not using signed message hash & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 19 & 118 & Incorrect Constructor Name \newline Using constructor keyword & \notcovered & \passed & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 20 & 119 & Shadowing State Variables \newline Remove any variable ambiguities & \notcovered & \notcovered & \passed & \passed & \passed & \passed & \passed \\
+			\hline\centering 21 & 120 & Weak Sources of Randomness from Chain Attributes \newline Not using block variables & \passed & \passed & \notcovered & \passed & \passed & \notcovered & \passed \\
+			\hline\centering 22 & 121 & Missing Protection against Signature Replay Attacks \newline Storing every message hash & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 23 & 122 & Lack of Proper Signature Verification \newline Using alternate verification schemes & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 24 & 123 & Requirement Violation \newline Allowing all valid external inputs & \notcovered & \passed & \passed & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 25 & 124 & Write to Arbitrary Storage Location \newline Controlling write to sensitive storage & \notcovered & \passed & \passed & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 26 & 125 & Incorrect Inheritance Order \newline Inheriting from more general to specific & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 27 & 126 & Insufficient Gas Griefing \newline Allowing trusted forwarders & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \passed \\
+			\hline\centering 28 & 127 & Arbitrary Jump with Function Type Variable \newline Minimizing use of assembly & \notcovered & \passed & \passed & \passed & \notcovered & \passed & \passed \\
+			\hline\centering 29 & 128 & DoS With Block Gas Limit \newline Avoiding loops across the entire data & \passed & \passed & \passed & \passed & \passed & \passed & \passed \\
+			\hline\centering 30 & 129 & Typographical Error \newline Using SafeMath & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered & \passed \\
+			\hline\centering 31 & 130 & Right-To-Left-Override control character (U+202E) \newline Avoiding U+202E character & \notcovered & \notcovered & \passed & \passed & \passed & \passed & \passed \\
+			\hline\centering 32 & 131 & Presence of unused variables \newline Removing all unused variables & \notcovered & \passed & \passed & \notcovered & \passed & \passed & \falsepos \\
+			\hline\centering 33 & 132 & Unexpected Ether balance \newline Avoiding strict Ether balance checks & \notcovered & \passed & \passed & \notcovered & \passed & \passed & \passed \\
+			\hline\centering 34 & 133 & Hash Collisions With Variable Length Arguments \newline Using abi.encode() instead & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed \\
+			\hline\centering 35 & 134 & Message call with hardcoded gas amount \newline Using .call.value(...)("") & \notcovered & \falsepos & \failed & \notcovered & \passed & \notcovered & \passed \\
+			\hline\centering 36 & 135 & Code With No Effects \newline Writing unit tests to verify correct behavior & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \passed \\
+			\hline\centering 37 & 136 & Unencrypted Private Data On-Chain \newline Storing private data off-chain & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed \\		
+			\hline\centering 38 & \BP & ERC20 compliance \newline Implementing 6 functions and 2 events & \passed & \passed & \passed & \notcovered & \passed & \passed & \notcovered \\ 
+			\hline\centering 39 & \BP & Number of external functions \newline Minimizing external functions & \passed & \passed & \passed & \notcovered & \notcovered & \notcovered & \notcovered \\ 
+%			\hline\centering 40 & \BP & Token decimal \newline Adding a token decimal declaration & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 41 & \BP & Token name \newline Adding a token name variable & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 42 & \BP & Token symbol \newline Adding a token symbol variable & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 43 & \noSWC & Allowance decreases upon transfer \newline Decreasing allowance in transferFrom() & \failed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 44 & \noSWC & Allowance function returns an accurate value \newline Returning only value from the mapping & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 45 & \BP & Allowance spending is possible \newline Ability of token transfer by transferFrom() & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 46 & \BP & The Approval event is correctly logged \newline Emitting Approval event & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 47 & \noSWC & It is possible to cancel an existing allowance \newline Possibility of setting allowance to 0 & \passed & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 48 & \BP & The decreaseAllowance definition follows the standard \newline Defining decreaseAllowance function & \falsepos & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 49 & \BP & The increaseAllowance definition follows the standard \newline Defining increaseAllowance function & \falsepos & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 50 & \noSWC & A transfer with an insufficient amount is reverted \newline Checking balances in transfer() & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 51 & \BP & Uninitialized state variables \newline Initializing all the variables & \passed & \passed & \notcovered & \notcovered & \passed & \passed & \notcovered \\
+%			\hline\centering 52 & \noSWC & Upon sending funds, the sender's balance is updated \newline Updating balances in transfer() & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 53 & \noSWC & The Transfer event correctly logged \newline Emitting Transfer event & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 54 & \BP & Transfer to the burn address is reverted \newline Checking transfer to 0x0 & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 55 & \noSWC & Transfer an amount that is greater than the allowance \newline Checking in transferFrom() & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 56 & \BP & Emitting event when state changes \newline Emitting Change event & \failed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 57 & \BP & Source code is decentralized \newline Not using hard-coded addresses & \passed & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 58 & \noSWC & Risk of short address attack is minimized \newline Using recent Solidity version & \passed & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 59 & \noSWC & Function names are unique \newline No function overloading & \falsepos & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 60 & \BP & Funds can be held only by user-controlled wallets \newline Checking for address code & \failed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 61 & \BP & Code logic is simple to understand \newline Avoiding code nesting & \passed & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 62 & \BP & All functions are documented \newline Using NatSpec format & \passed & \notcovered & \notcovered &\notcovered  & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 63 & \BP & Using only high-level programming language \newline Not using inline-assembly codes & \passed & \passed & \passed & \notcovered & \passed & \passed & \notcovered \\
+%			\hline\centering 64 & \BP & Acceptable gas cost of the approve() function \newline Checking for maximum 50000 gas & \failed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 65 & \BP & Acceptable gas cost of the transfer() function \newline Checking for maximum 60000 gas & \failed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 66 & \BP & Use of "Pull over Push" efficiency pattern \newline Allowing user to pull the funds & \passed & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 67 & \BP & Use of unindexed arguments \newline Using indexed events' arguments & \notcovered & \passed & \notcovered & \notcovered & \passed & \passed & \notcovered \\
+%			\hline\centering 68 & \noSWC & Using miner controlled variables \newline Avoiding now, block.timestamp, etc & \passed & \passed & \passed & \passed & \passed & \passed & \notcovered \\
+%			\hline\centering 69 & \noSWC & Use of return in constructor \newline Not using return in contract's constructor & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 70 & \noSWC & Throwing exceptions in transfer() and transferFrom() \newline Returning true after successful execution & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 71 & \BP & Locked money \newline Implement a withdraw function or reject payments & \notcovered &	\passed & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 72 & \BP & Malicious libraries \newline Not using modifiable third-party libraries & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 73 & \BP & Payable fallback function \newline Adding fallback() function to receive Ether & \notcovered & \passed & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 74 & \BP & Prefer external to public visibility level \newline Replacing public with external if not used locally & \notcovered & \passed & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 75 & \noSWC & Call with hard-coded gas amount (EIP1884) \newline Not using transfer() or send() functions & \notcovered & \failed & \notcovered & \passed & \notcovered & \notcovered & \notcovered \\
+%			\hline\centering 76 & \BP & Error information in revert condition \newline Adding error description & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 77 & \BP & Freezing Ether \newline Adding functions to send Ether out & \notcovered & \passed & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 78 & \BP & Complex Fallback \newline Logging operations in the fallback function & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 79 & \BP & Function Order \newline Following fallback, external, etc & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 80 & \BP & Visibility Modifier Order \newline Specifying visibility first and before modifiers & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 81 & \BP & Non-initialized return value \newline Not specifying return for functions without output & \notcovered & \passed & \notcovered & \notcovered & \passed & \notcovered & \notcovered \\
+%			\hline\centering 82 & \noSWC & Tautology or contradiction \newline Fixing comparison that are always true or false & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 83 & \noSWC & Divide before multiply \newline Ordering multiplication prior division & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 84 & \noSWC & Unchecked Send \newline Ensure that the return value of send() is checked & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 85 & \BP & Builtin Symbol Shadowing \newline Renaming variables & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 86 & \BP & Low level calls \newline Checking successful return value from call() & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \failed & \notcovered \\
+%			\hline\centering 87 & \BP & Conformance to naming conventions \newline Following the Solidity naming convention & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 88 & \BP & Too many digits \newline Using scientific notation & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline\centering 89 & \BP & State variables that could be declared constant \newline Adding constant attribute & \notcovered & \notcovered & \notcovered & \notcovered & \notcovered & \passed & \notcovered \\
+%			\hline
+%			& & \textbf{96\% average success rate by considering false positives as passed} & \textbf{87\%} & \textbf{91\%} & \textbf{96\%} & \textbf{100\%} & \textbf{100\%} & \textbf{97\%} & \textbf{97\%} \\
+			\hline
+	\end{tabular}
+
+\end{adjustbox}	
+
+\caption{Auditing results of 7 smart contract analysis tools on the proposed ERC20 code. 96\% average success rate after considering the \textit{false positives} as \textit{passed}. (LEGEND. BP=Best practice, \checkmark=Passed audit, \falsepos=False positive, \failed=Failed audit, Empty=Not supported audit by the tool, \noSWC=Tool specific audit (No SWC registry)\label{tab:result}}
+	
+\end{table*}

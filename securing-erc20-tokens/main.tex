@@ -1,27 +1,31 @@
-\documentclass[conference,compsoc]{IEEEtran}
+\documentclass[envcountsect]{llncs}
+\pagestyle{headings} 
+\bibliographystyle{splncs04}
 
-\usepackage{enumitem}
-\usepackage{amssymb}
-\usepackage{multirow}
-\usepackage[singlelinecheck=false]{caption}
-\captionsetup{font=footnotesize}
+
+% = = = = = Packages = = = = = %
+
 \input{setup/packages}
 \input{setup/macros}
+\input{setup/table}
 
-%=====================================================================================
+% = = = = = Title = = = = = %
+
 \begin{document}
+\frontmatter
+\mainmatter
 
-\title{Securing ERC20 Tokens in Ethereum blockchain}
-\author{
-	\IEEEauthorblockN{ }
-	\IEEEauthorblockA{ }
-}
+\title{\Large \bf Revisiting ERC20 Contract Vulnerabilities}
 
 \maketitle
-%==========================================%
-\input{sections/abstract}		
-\IEEEpeerreviewmaketitle
-%==========================================%
+
+
+% = = = = = Abstract = = = = = %
+
+\input{sections/abstract}
+
+% = = = = = Main Body = = = = = %
+
 \input{sections/introduction}
 \input{sections/vulnerabilities}
 \input{sections/bestpractices}
@@ -29,8 +33,22 @@
 \input{sections/verification}
 \input{sections/comparison}
 \input{sections/conclusion}
-%==========================================%
-\bibliographystyle{unsrt}
-\bibliography{references}
-%==========================================%
+
+% = = = = = Bibliography = = = = = %
+
+\bibliography{bib/references}
+%\nocite{*}
+
+% = = = = = End Notes = = = = = %
+
+\clearpage
+\appendix
+
 \end{document}
+
+
+
+
+
+
+

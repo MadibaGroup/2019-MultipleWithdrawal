@@ -10,7 +10,7 @@ ERC20 tokens are subset of smart contracts and vulnerable in a similar way. We t
 \end{figure}
 
 Among the layers of Ethereum blockchain, our focus is on the \textit{Contract layer} in which smart contracts are executed (See figure~\ref{fig:blockchain}). The presence of security vulnerability in supplementary layers affect the entire Ethereum blockchain, not necessarily ERC20 tokens. Therefore, vulnerabilities in other layers are assumed to be out of the scope (\eg \textit{Indistinguishable chains} at Data layer, \textit{51\% hashrate} at Consensus layer, \textit{Unlimited nodes creation} at Network layer and \textit{Web3.js Arbitrary File Write} at Application layer). Moreover, due to the use of the recent version of Solidity compiler, we do not discuss the vulnerabilities identified in the outdated compiler versions, for example:
-\begin{itemize}[leftmargin=*]
+\begin{itemize}
 	\item \textit{Constructor name ambiguity} in versions before 0.4.22.
 	\item \textit{Uninitialized storage pointer} in versions before 0.5.0.
 	\item \textit{Function default visibility} in versions before 0.5.0
