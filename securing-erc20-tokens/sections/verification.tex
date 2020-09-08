@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{Formal verification}\label{section:ver}
+\section{Audit Tools}\label{section:ver}
 
 \input{tables/table}
 \input{tables/table2}
@@ -8,7 +8,10 @@
 \input{tables/table4}
 
 
-Code verification before launching ERC20 tokens could prevent human errors and reveals the presence of vulnerabilities. We use the following publicly available tools \cite{AuditTools} to detect security flaws in the proposal\footnote{We could not use some other tools (\eg Oyente) due to support for lower versions of solidity compiler.}:
+
+We used a variety of code audit tools on \sys to validate the code and also to illuminate the completeness and error-rate of such tools on one specific use-case (similar work studies in less depth a variety of use-cases~\cite{AuditTools}). We did not adapt older tools that support lower versions of the Solidity compiler (\eg Oyente). The following seven tools are all publicly available.
+
+%\begin{samepage}
 \begin{enumerate}
 	\item EY Review Tool \footnote{\url{https://review-tool.blockchain.ey.com}} by Ernst \& Young Global Limited.
 	\item SmartCheck\footnote{\url{https://tool.smartdec.net}} by SmartDec.
@@ -18,18 +21,24 @@ Code verification before launching ERC20 tokens could prevent human errors and r
 	\item Slither Analyzer\footnote{\url{https://github.com/crytic/slither}} by Crytic.
 	\item Odin\footnote{\url{https://odin.sooho.io/}} by Sooho.
 \end{enumerate}
+%\end{samepage}
 
-\noindent A total of 89 audits have been conducted by these auditing tools, including the best practices in addition to security vulnerabilities. The results are summarized in Table~\ref{tab:result} and sorted by Smart Contract Weakness Classification (SWC\footnote{Classifies security issues in smart contracts. \url{https://swcregistry.io/}}.). Knowledge-base of each tool is used to map audits to the corresponding SWC registry \cite{SECURIFYGIT}, \cite{SMARTCHECK}, \cite{MythX}, \cite{ContractGuard}, \cite{SlitherDoc}. Since each tool employs different methodology to analyze smart contracts (\eg comparing with violation patterns, applying set of rules, using static analysis, etc), there would be some false positives. After ignoring them, the average percentage of passed checks for the code reaches to 96\%. The following are some examples of ignored false positives:
+ A total of 89 audits have been conducted by these auditing tools. Audits include best practices and security vulnerabilities. The results are summarized in Tables~\ref{tab:result}--\ref{tab:result3} and sorted by Smart Contract Weakness Classification (SWC).\footnote{\url{https://swcregistry.io/}}) Knowledge-base of each tool is used to map the audits to the corresponding SWC registry \cite{SECURIFYGIT,SMARTCHECK,MythX,ContractGuard,SlitherDoc}. Since each tool employs different methodologies to analyze smart contracts (\eg comparing with violation patterns, applying a set of rules, using static analysis, \etc), there are false positives as expected. The following are some examples of ignored false positives:
+ 
 \begin{itemize}
-	\item \textit{MythX} detects \textit{Re-entrancy attack} in \textit{noReentrancy} modifier. In solidity, modifiers are used to add features or apply some restriction on function\cite{SolidityModifer}. Using \textit{noReentrancy} modifier is a known technique (Mutex) to mitigate \textit{Re-entrancy attack}\cite{ReentrancyGuard}. Since other tools have not identified such a case, it can be considered as false positive.
-	\item \textit{EY review tool} considers \texttt{decreaseAllowance} and \texttt{increaseAllowance} as standard ERC20 functions and if not implemented, recognizes the code as vulnerable to \textit{front-running} attack. These two functions are not defined in the ERC20 standard\cite{ERC20Std} and considered only by this tool as standard ERC20 functions. There are other methods to prevent the attack while adhering ERC20 specifications\cite{ERC20MWA}. The tool also detects the \textit{Overflow} attack, which is already addressed by using the \texttt{SafeMath} library. Another identified issue is \textit{Funds can be held only by user-controlled wallets}. It advises to prevent any token transfer to Ethereum addresses that belong to smart contracts. However, interacting with ERC20 token by other smart contracts was one of the main motivations of the ERC20 standard.
-	\item \textit{SmartCheck} does not recommend to use \texttt{SafeMath} and advises to explicitly check where it is really needed. Another identified issue is \textit{using private modifier}. They mention in the knowledge-base that "miners have access to all contracts’ data and developers must account for the lack of privacy in Ethereum". However, they do not provide an alternative. A workaround could be to use cryptographic techniques for maintaining privacy on the current version of Ethereum. Also, using \texttt{approve()} function is not recommended due to front-running attack while there are preventive techniques for it. Despite EIP-1884, the tool still recommends using of \texttt{transfer()} method with stipend of 2300 gas.
-	\item The proposal could not pass \textit{Re-entrancy} check of \textit{Securify} while both CEI and Mutex are implemented. It identifies \texttt{noReentrancy} modifier as unsafe due to unrestricted writes \cite{SECURIFY}. Modifier are not accessible by users and are recommended approach to prevent \textit{Re-entrancy}.
-	\item Using \texttt{SafeMath} is detected as \textit{Delegatecall to untrusted callee} vulnerability by \textit{SmartCheck}. In solidity, embedded libraries are called by JUMP commands instead of Delegatecall. Therefore, excluding embedded libraries from this check might improve accuracy of the tool.
+	\item \textit{MythX} detects a \textit{Re-entrancy attack} in the \textit{noReentrancy} modifier. In Solidity, modifiers are used to add features or apply some restriction on function~\cite{SolidityModifer}. Using the \textit{noReentrancy} modifier is a known technique (via Mutex) to mitigate the attack~\cite{ReentrancyGuard}. This is a false positive and note that other tools have not identified it.
+	\item The \textit{EY review tool} considers \texttt{decreaseAllowance} and \texttt{increaseAllowance} as standard ERC20 functions and if not implemented, recognizes the code as vulnerable to a \textit{front-running} attack. These two functions are not defined in the ERC20 standard~\cite{ERC20Std} and considered only by this tool as standard ERC20 functions. There are other methods to prevent the attack while adhering ERC20 specifications (see Rahimian \etal for a full paper on this attack and the basis of the mitigation in \sys~\cite{ERC20MWA}). The tool also falsely detects the \textit{Overflow} attack, mitigated through \texttt{SafeMath}. Another identified issue is \textit{Funds can be held only by user-controlled wallets}. The tool warns agains any token transfer to Ethereum addresses that belong to smart contracts. However, interacting with ERC20 token by other smart contracts was one of the main motivations of the ERC20 standard.
+	\item \textit{SmartCheck} recommends not using \texttt{SafeMath} and instead use explicit checks where overflows might be possible. It also flags \textit{using private modifier}. They mention in the knowledge-base that ``miners have access to all contracts’ data and developers must account for the lack of privacy in Ethereum," however private visibility in Solidity concerns object oriented inheritance not confidentiality. The tool also warns against \texttt{approve()} in ERC20 due to front-running attacks (see above). Despite EIP-1884, the tool still recommends using of \texttt{transfer()} method with stipend of 2300 gas.
+	\item The proposal could not pass \textit{Re-entrancy} check of \textit{Securify} while both CEI and Mutex are implemented. It identifies \texttt{noReentrancy} modifier as unsafe due to unrestricted writes~\cite{SECURIFY}. Modifiers are not accessible by users and are the recommended approach to prevent \textit{Re-entrancy}.
+	\item Using \texttt{SafeMath} is flagged as a \textit{Delegatecall to untrusted callee} vulnerability by \textit{SmartCheck}. In Solidity, embedded libraries are called by JUMP commands instead of Delegatecall. Therefore, excluding embedded libraries from this check might improve accuracy of the audit tool.
 \end{itemize}
-Some tools also need to be updated to meet the latest standards or consider best practices. for example:
+
+
+After manually overriding the false positives, the average percentage of passed checks for \sys reaches to 96\%. The remaining issues are attributed to outdated requirements in the audit tools, including the following examples.
+
 \begin{itemize}
-	\item Current version of analyzers\cite{SlitherSetup} in \textit{Slither} detect two \textit{low level call} vulnerabilities in the proposal. This is due to using of \texttt{msg.sender.call.value()} that is recommend way of transferring ETH after \textit{Istanbul} hard-fork (EIP-1884).	Therefore, adapting analyzers to new standards can improve accuracy of the security checks.
+	\item The current version of analyzers in \textit{Slither} detect two \textit{low level call} vulnerabilities in \sys~\cite{SlitherSetup}. This is due to using of \texttt{msg.sender.call.value()} that is recommend way of transferring ETH after \textit{Istanbul} hard-fork (EIP-1884).	Therefore, adapting analyzers to new standards can improve accuracy of the security checks.
 	\item \textit{EY review tool} checks for maximum 50000 gas in \texttt{approve()} and 60000 in \texttt{transfer()} method. We could not find corresponding SWC registry or standard recommendation on these limitations.
-	\item Locking solidity version to 0.5.11 is detected by \textit{Odin} as \textit{Outdated compiler version}. We have used this version due to its compatibility with all auditing tools. Furthermore, other tools have not identified such an issue.
+	\item Locking solidity version to 0.5.11 is detected by \textit{Odin} as an \textit{Outdated compiler version}. We have used this version due to its compatibility with all auditing tools. Furthermore, other tools have not identified such an issue.
 \end{itemize}
+
