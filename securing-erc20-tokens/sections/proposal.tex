@@ -8,14 +8,14 @@ We now present \sys, our ERC20-compliant token implementation written in Solidit
 % Soemthing on multiple withdrawal
 % Something on unexpected ETH
 
-In addition to the standard ERC20 methods, we also implement the following complementary features for exchanging tokens and ETH. These are only useful for tokens with a fixed exchange rate, which is managed by the \texttt{exchangeRate} variable.  
+In addition to the standard \erc methods, we also implement the following complementary features for exchanging tokens and ETH. These are only useful for tokens with a fixed exchange rate, which is managed by the \texttt{exchangeRate} variable.  
 
 \begin{enumerate}
-	\item \textbf{Buying tokens:} ERC20 tokens can be offered to users for purchase. Users call the \texttt{buy()} function which accepts ETH (\ie defined as \textit{payable}) to be held by the ERC20 contract. The contract calculates the equivalent number of tokens based on the current exchange rate, increases the token balance of the buyer, and logs a \texttt{Buy} event.
+	\item \textbf{Buying tokens:} \erc tokens can be offered to users for purchase. Users call the \texttt{buy()} function which accepts ETH (\ie defined as \textit{payable}) to be held by the \erc contract. The contract calculates the equivalent number of tokens based on the current exchange rate, increases the token balance of the buyer, and logs a \texttt{Buy} event.
 	\item \textbf{Selling tokens:} By using \texttt{sell()} function, token holders can send back tokens to the contract and receive ETH in return as long as the contract holds ETH (see withdrawing ETH below). After each exchange, a \texttt{Sell} event triggers. 
-	\item \textbf{Withdrawing Ether:} This function can be called only by the contract owner. The \texttt{withdraw()} function will transfer ETH out of the contract. This mitigates the unexpected ETH issue. Transferring ETH out of the contract logs a \texttt{Withdrawal} event.
+	\item \textbf{Withdrawing Ether:} This function can be called only by the contract owner {\chg (Or other parties in multi-owner implementations)}. The \texttt{withdraw()} function will transfer ETH out of the contract. This mitigates the unexpected ETH issue. Transferring ETH out of the contract logs a \texttt{Withdrawal} event.
 \end{enumerate}
 
 These extra features allow the purchase and sale of tokens independently of an exchange service for fixed priced tokens.
 
-%would be a financial advantage for new tokens and makes them independent of crypto-exchanges. All the required functionalities are directly supported by the token contract and no additional external services are required. This feature is a financial advantage for new ERC20 tokens and reduces buyers doubts. They can return purchased token at any time and receive the equivalent in ETH. Another option for them is to wait for the token to be listed by crypto-exchanges (if it ever happens). Otherwise, they would not be able to exchange tokens if this feature is not support by the token contract.
+%would be a financial advantage for new tokens and makes them independent of crypto-exchanges. All the required functionalities are directly supported by the token contract and no additional external services are required. This feature is a financial advantage for new \erc tokens and reduces buyers doubts. They can return purchased token at any time and receive the equivalent in ETH. Another option for them is to wait for the token to be listed by crypto-exchanges (if it ever happens). Otherwise, they would not be able to exchange tokens if this feature is not support by the token contract.

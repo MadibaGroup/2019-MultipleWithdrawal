@@ -2,15 +2,15 @@
 
 \section{A sample of best practices}\label{section:bp}
 
-In addition to reviewing known vulnerabilities, we also took into account a number of best practices for developing DApps on Ethereum. Again, due to space, we highlight a few that have been accepted by the Ethereum community to proactively prevent known vulnerabilities~\cite{TokenBP}. Some best practices are specific to ERC20, while others are generic for all DApps---in which case, we discuss their relevance to ERC20 and to \sys.
+In addition to reviewing known vulnerabilities, we also took into account a number of best practices for developing DApps on Ethereum. Again, due to space, we highlight a few that have been accepted by the Ethereum community to proactively prevent known vulnerabilities~\cite{TokenBP}. Some best practices are specific to \erc, while others are generic for all DApps---in which case, we discuss their relevance to \erc and to \sys.
 
-\subsubsection{Compliance with ERC20.}
+\subsubsection{Compliance with \erc.}
 
-According to the ERC20 specifications, all 6 methods and 2 events must be implemented ands are not optional. Moreover, ignoring them can cause failed function calls by other applications (\ie crypto-wallets, crypto-exchanges, web services, etc) which are expecting them. Tokens that are not implementing all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) might also be vulnerable to complex attacks (\cf  \cite{DEPOSafe}). For \sys, we implement all the required methods, and add some complementary functions such as \texttt{sell()} and \texttt{buy()}. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance.
+According to the \erc specifications, all 6 methods and 2 events must be implemented and are not optional. Moreover, ignoring them can cause failed function calls by other applications (\ie crypto-wallets, crypto-exchanges, web services, etc) which are expecting them. Tokens that are not implementing all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) might also be vulnerable to complex attacks (\cf  \cite{DEPOSafe}). For \sys, we implement all the required methods, and add some complementary functions such as \texttt{sell()} and \texttt{buy()}. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance.
 
 \subsubsection{Firing events.}
 
-In ERC20 standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application might use them to update balances, show UI notifications, or to check new token approvals. In addition to the above logs, we define 6 extra events in \sys that are \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token events and react accordingly.
+In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application might use them to update balances, show UI notifications, or to check new token approvals. In addition to the above logs, we define 6 extra events in \sys that are \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token events and react accordingly.
 
 \subsubsection{External visibility.}
 
@@ -18,15 +18,15 @@ Solidity supports two types of \textit{function calls}: internal and external~\c
 
 \subsubsection{Fail-Safe Mode.}
 
-In the case of a detected anomaly or attack on a deployed ERC20 token, the functionality of the token can be frozen pending further investigation. To freeze all functionality, the owner of the token can call a \texttt{pause()} function. It then sets a lock variable and methods are marked with a \texttt{notPaused} modifier that throws exceptions until functionality is restored using \texttt{unpause()}. In \sys, we apply a \texttt{notPaused} modifier to all external functions (\eg \texttt{transfer()}, \texttt{sell()}, \etc).
+In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. To freeze all functionality, the owner of the token can call a \texttt{pause()} function. It then sets a lock variable and methods are marked with a \texttt{notPaused} modifier that throws exceptions until functionality is restored using \texttt{unpause()}. In \sys, we apply a \texttt{notPaused} modifier to all external functions (\eg \texttt{transfer()}, \texttt{sell()}, \etc).
 
 \subsubsection{Global or Miner controlled variables.}
 
-Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{tx.origin}, \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables. For example, \texttt{tx.origin} can be compromised by a phishing attack; thus it is safer to use \texttt{msg.sender} when determining the transaction caller. We do not use any such variables for conditional execution, authentication, or randomness.
+Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{tx.origin}, \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables. For example, \texttt{tx.origin} can be compromised by a phishing attack; thus it is safer to use \texttt{msg.sender} when determining the transaction caller. We do not use such variables for conditional execution, authentication, or randomness.
 
 \subsubsection{Proxy contracts.}
 
-An ERC20 token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning ERC20 contract~\cite{ProxyContract,ProxyPatterns}. One use of a proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. We concentrate on building a secure, standalone implementation. Users of \sys can freely proxy \sys as they choose. 
+An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract~\cite{ProxyContract,ProxyPatterns}. One use of a proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. We concentrate on building a secure, standalone implementation. Users of \sys can freely proxy \sys as they choose. 
 
 \subsubsection{DoS with unexpected revert.}
 
