@@ -4,5 +4,19 @@
 
 The development of smart contracts has proven to be error-prone in practice, and as a result, contracts deployed on public platforms are often riddled with security vulnerabilities. Exploited by the attackers, these vulnerabilities can often lead to major security incidents which introduce great cost due to the immutability characteristics of the blockchain technology. In this paper, we examine \erc security vulnerabilities and thoroughly discuss the technical details, the circumstances of the incidents together with their impacts and mitigations. We also integrate best practices to improve efficiency and productivity of the token. Eventually, we propose a secure \erc code that is not vulnerable to any of the attacks. Using auditing tools and comparing with the top ten \erc tokens shows the security of the proposal. It can be used as template to deploy new \erc tokens, migrate current vulnerable deployments or develop tools to automate auditing of \erc tokens.
 
+{\chg Highlights for inducing in the conclusion:
+\begin{itemize}
+	\item At about 98\% of tokens are \erc, showing importance of security
+	\item There is no vulnerability reference site (like https://swcregistry.io) for \erc tokes. We collected them all in the paper.
+	\item Some vulnerabilities are specific to \erc token that cannot be categorized under smart contract vulnerabilities, so, need separate work as we did
+	\item We provided list of \num vulnerabilities for \erc tokens by including best practices to improve the performance and make it ready for industrial implementations (\eg ICOs, DApps, \etc)
+	\item \sys passed all audits of 7 tools, proving its security against current Ethereum vulnerabilities. Also, detected security issue in the comparison table are false positives that are considered as failed check for \sys to make a fair comparison
+	\item The code is available in compatible Solidity version (0.5.11) and the recent versions (0.7.2), but the recent one may not be used by audit tools.
+	\item We ignored some known tools (like Oyente) due to their support from legacy Solidity versions (knows compiler bugs).
+	\item If businesses are looking for a secure token, \sys can be used as a template and customized with advanced features (like multi parties approval for withdrawing ETH).
+\end{itemize}
+
+}
+
 
 
