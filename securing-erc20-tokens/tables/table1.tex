@@ -15,16 +15,16 @@
 \begin{table*}
 \centering
 \begin{adjustbox}{max height=10cm}
-\begin{tabular}{|P{4mm}|P{8mm}|m{105mm}|P{5mm}|P{5mm}|P{5mm}|P{5mm}|P{5mm}|P{5mm}|P{5mm}|}
+\begin{tabular}{|P{3mm}|P{7mm}|m{105mm}|P{3mm}|P{3mm}|P{3mm}|P{3mm}|P{3mm}|P{3mm}|P{3mm}|}
 
 \multicolumn{3}{c}{\.} &
-\headrow{\tx{EY Token Review}} &
-\headrow{\tx{Smart Check}} &
-\headrow{\tx{Securify}} &
-\headrow{\tx{MythX (Mythril)}} &
-\headrow{\tx{Contract Guard}} &
-\headrow{\tx{Slither}} &
-\headrow{\tx{Odin}} \\ \hline
+\headrow{EY Token Review} &
+\headrow{Smart Check} &
+\headrow{Securify} &
+\headrow{MythX (Mythril)} &
+\headrow{Contract Guard} &
+\headrow{Slither} &
+\headrow{Odin} \\ \hline
 
 \rcl\ccl & \ccl & \tx{Vulnerability or best practice} & \multicolumn{7}{c|}{\ccl} \\ \cline{3-3}
 \rcl\multirow{-2}{*}{\ccl\tx{ID}} & \multirow{-2}{*}{\ccl\tx{SWC}} & Mitigation or recommendation & \multicolumn{7}{c|}{\multirow{-2}{*}{\ccl\tx{Security tools}}} \\ \hline
@@ -35,59 +35,54 @@
 \multirow{2}{*}{3} & \multirow{2}{*}{102} & \tx{Outdated Compiler Version} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\fail} \\ \cline{3-3}
 & & Using proper Solidity version to protect against compiler attacks & & & & & & & \\ \hline
 \multirow{2}{*}{4} & \multirow{2}{*}{103} & \tx{Floating Pragma} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Specifying function visibility & & & & & & & \\ \hline
-\multirow{2}{*}{5} & \multirow{2}{*}{104} & \tx{Unchecked Call Return Value} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Checking call() return value & & & & & & & \\ \hline
+& & Locking the pragma to avoid deployments using outdated compiler version & & & & & & & \\ \hline
+\multirow{2}{*}{5} & \multirow{2}{*}{104} & \tx{Unchecked Call Return Value} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\pass} \\ \cline{3-3}
+& & Checking call() return value to prevent unexpected behavior in DApps & & & & & & & \\ \hline
 \multirow{2}{*}{6} & \multirow{2}{*}{105} & \tx{Unprotected Ether Withdrawal} & \multirow{2}{*}{\na} & \multirow{2}{*}{\info} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Authorizing trusted parties & & & & & & & \\ \hline
+& & Authorizing only trusted parties to trigger ETH withdrawals & & & & & & & \\ \hline
 \multirow{2}{*}{7} & \multirow{2}{*}{106} & \tx{Unprotected SELFDESTRUCT Instruction} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Approving by multiple parties & & & & & & & \\ \hline
+& & Removing self-destruct functionality or approving it by multiple parties & & & & & & & \\ \hline
 \multirow{2}{*}{8} & \multirow{2}{*}{107} & \tx{Re-entrancy} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using CEI or Mutex & & & & & & & \\ \hline
-\multirow{2}{*}{9} & \multirow{2}{*}{108} & \tx{State variable default visibility} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\info} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Specifying variable visibility & & & & & & & \\ \hline
-\multirow{2}{*}{10} & \multirow{2}{*}{109} & \tx{Uninitialized Storage Pointer} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Initializing upon declaration & & & & & & & \\ \hline
+& & Using CEI and Mutex to mitigate self-function and cross-function attacks & & & & & & & \\ \hline
+\multirow{2}{*}{9} & \multirow{2}{*}{108} & \tx{State variable default visibility} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
+& & Specifying visibility of all variables, public, private or internal & & & & & & & \\ \hline
+\multirow{2}{*}{10} & \multirow{2}{*}{109} & \tx{Uninitialized Storage Pointer} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
+& & Initializing variables upon declaration to prevent unexpected storage access & & & & & & & \\ \hline
 \multirow{2}{*}{11} & \multirow{2}{*}{110} & \tx{Assert Violation} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using require() statement & & & & & & & \\ \hline
+& & Using require() statement to validate inputs, checking efficiency of the code & & & & & & & \\ \hline
 \multirow{2}{*}{12} & \multirow{2}{*}{111} & \tx{Use of Deprecated Solidity Functions} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using new alternatives & & & & & & & \\ \hline
+& & Using new alternatives functions such as keccak256() instead of sha3() & & & & & & & \\ \hline
 \multirow{2}{*}{13} & \multirow{2}{*}{112} & \tx{Delegatecall to untrusted callee} & \multirow{2}{*}{\na} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using for trusted contracts & & & & & & & \\ \hline
-\multirow{2}{*}{14} & \multirow{2}{*}{113} & \tx{DoS with Failed Call} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Avoid multiple external calls & & & & & & & \\ \hline
+& & Calling into trusted contracts to avoid storage access by malicious contracts & & & & & & & \\ \hline
+\multirow{2}{*}{14} & \multirow{2}{*}{113} & \tx{DoS with Failed Call} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
+& & Avoid multiple external calls where one error may fail other transactions & & & & & & & \\ \hline
 \multirow{2}{*}{15} & \multirow{2}{*}{114} & \tx{Transaction Order Dependence} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Preventing race conditions & & & & & & & \\ \hline
+& & Preventing race conditions by securing approve() or transferFrom() & & & & & & & \\ \hline
 \multirow{2}{*}{16} & \multirow{2}{*}{115} & \tx{Authorization through tx.origin} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using msg.sender instead & & & & & & & \\ \hline
+& & Using msg.sender to authorize transaction initiator instead of originator & & & & & & & \\ \hline
 \multirow{2}{*}{17} & \multirow{2}{*}{116} & \tx{Block values as a proxy for time} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using oracles instead of block number & & & & & & & \\ \hline
+& & Not using block.timestamp or block.number to perform functionalities & & & & & & & \\ \hline
 \multirow{2}{*}{18} & \multirow{2}{*}{117} & \tx{Signature Malleability} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Not using signed message hash & & & & & & & \\ \hline
+& & Not using signed message hash to avoid signatures alteration & & & & & & & \\ \hline
 \multirow{2}{*}{19} & \multirow{2}{*}{118} & \tx{Incorrect Constructor Name} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using constructor keyword & & & & & & & \\ \hline
+& & Using constructor keyword which does not match with contract name & & & & & & & \\ \hline
 \multirow{2}{*}{20} & \multirow{2}{*}{119} & \tx{Shadowing State Variables} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Remove any variable ambiguities & & & & & & & \\ \hline
+& & Removing any variable ambiguities when inheriting other contracts & & & & & & & \\ \hline
 \multirow{2}{*}{21} & \multirow{2}{*}{120} & \tx{Weak Sources of Randomness from Chain Attributes} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Not using block variables & & & & & & & \\ \hline
+& & Using oracles as source of randomness instead of block.timestamp & & & & & & & \\ \hline
 \multirow{2}{*}{22} & \multirow{2}{*}{121} & \tx{Missing Protection against Signature Replay Attacks} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Storing every message hash & & & & & & & \\ \hline
+& & Storing every message hash to perform signature verification & & & & & & & \\ \hline
 \multirow{2}{*}{23} & \multirow{2}{*}{122} & \tx{Lack of Proper Signature Verification} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using alternate verification schemes & & & & & & & \\ \hline
+& & Using alternate verification schemes if allowing off-chain signing & & & & & & & \\ \hline
 \multirow{2}{*}{24} & \multirow{2}{*}{123} & \tx{Requirement Violation} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Allowing all valid external inputs & & & & & & & \\ \hline
+& & Checking the code for allowing only valid external inputs & & & & & & & \\ \hline
 \multirow{2}{*}{25} & \multirow{2}{*}{124} & \tx{Write to Arbitrary Storage Location} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Controlling write to sensitive storage & & & & & & & \\ \hline
+& & Controlling write to storage to prevent storage corruption by attackers & & & & & & & \\ \hline
 \multirow{2}{*}{26} & \multirow{2}{*}{125} & \tx{Incorrect Inheritance Order} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Inheriting from more general to specific & & & & & & & \\ \hline
+& & Inheriting from more general to specific when there are identical functions & & & & & & & \\ \hline
 \multirow{2}{*}{27} & \multirow{2}{*}{126} & \tx{Insufficient Gas Griefing} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Allowing trusted forwarders & & & & & & & \\ \hline
-\multirow{2}{*}{28} & \multirow{2}{*}{127} & \tx{Arbitrary Jump with Function Type Variable} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Minimizing use of assembly & & & & & & & \\ \hline
-\multirow{2}{*}{29} & \multirow{2}{*}{128} & \tx{DoS With Block Gas Limit} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Avoiding loops across the entire data & & & & & & & \\ \hline
-\multirow{2}{*}{30} & \multirow{2}{*}{129} & \tx{Typographical Error} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} \\ \cline{3-3}
-& & Using SafeMath & & & & & & & \\ \hline
+& & Allowing trusted forwarders to relay transactions & & & & & & & \\ \hline
+
 
 \end{tabular}
 \end{adjustbox}	

@@ -3,26 +3,5 @@
 \subsection{Comparing audits}
 We repeated the same auditing process on the top ten tokens based on their market cap~\cite{EtherScan}. The result of all these evaluation have been summarized in table~\ref{tab:summary} by considering false positives as failed audits. This provide the same evaluation conditions across all tokens. Since each tool uses different analysis methods, number of occurrences are considered for comparisons. For example, MythX detects two re-entrancy attack in \sys; therefore, two occurrences are counted instead of one. As it can be seen in Table ~\ref{tab:summary}, \sys has the least number of security flaws compared to other tokens.
 
-\begin{table}[t!]
-\centering
-
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
-	\rcl
-	\multicolumn{1}{|c|}{\ccl} & \multicolumn{7}{c|}{\ccl\tx{Auditing Tool}} & \ccl \\ \cline{2-8}
-	\rcl 
-	\multicolumn{1}{|c|}{\multirow{-2}{*}{\ccl\tx{\begin{tabular}[c]{@{}c@{}}ERC-20\\ Token\end{tabular}}}} & \begin{tabular}[c]{@{}c@{}}EY Token\\ Review\end{tabular} & \begin{tabular}[c]{@{}c@{}}Smart\\ Check\end{tabular} & Securify & \begin{tabular}[c]{@{}c@{}}MythX\\ (Mythril)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Contract\\ Guard\end{tabular} & Slither & Odin & \multirow{-2}{*}{\ccl\tx{\begin{tabular}[c]{@{}c@{}}Total\\ issues\end{tabular}}} \\ \hline
-	\tx{\sys} & 9 & 11 & 4 & 2 & 10 & 2 & 2 & \tx{40} \\ \hline
-	\tx{TUSD} & 20 & 11 & 2 & 1 & 14 & 16 & 6 & \tx{70} \\ \hline
-	\tx{PAX} & 16 & 9 & 6 & 4 & 16 & 13 & 9 & \tx{73} \\ \hline
-	\tx{USDC} & 17 & 9 & 6 & 5 & 18 & 15 & 10 & \tx{80} \\ \hline
-	\tx{INO} & 11 & 10 & 14 & 8 & 14 & 24 & 12 & \tx{93} \\ \hline
-	\tx{HEDG} & 10 & 28 & 11 & 1 & 29 & 24 & 16 & \tx{119} \\ \hline
-	\tx{BNB} & 13 & 21 & 12 & 13 & 41 & 39 & 3 & \tx{142} \\ \hline
-	\tx{MKR} & 11 & 27 & 38 & 9 & 16 & 34 & 18 & \tx{153} \\ \hline
-	\tx{LINK} & 12 & 27 & 38 & 9 & 16 & 34 & 18 & \tx{181} \\ \hline
-	\tx{USDT} & 12 & 29 & 8 & 17 & 46 & 55 & 30 & \tx{197} \\ \hline
-	\tx{LEO} & 32 & 25 & 8 & 23 & 70 & 75 & 19 & \tx{252} \\ \hline
-\end{tabular}
-\caption{Security flaws detected by 7 auditing tools in \sys (the proposal) compared to top 10 \erc tokens by market capitalization in May 2020. \sys has the lowest reported security issues (occurrences). \label{tab:summary}}
-\end{table}
+\input{tables/table4}
 

@@ -3,30 +3,35 @@
 \begin{table*}
 \centering
 \begin{adjustbox}{max height=10cm}
-\begin{tabular}{|P{4mm}|P{8mm}|m{90mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|}
+\begin{tabular}{|P{3mm}|P{7mm}|m{90mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|P{8mm}|}
 
 \multicolumn{3}{c}{\.} &
-\headrow{\tx{EY Token Review}} &
-\headrow{\tx{Smart Check}} &
-\headrow{\tx{Securify}} &
-\headrow{\tx{MythX (Mythril)}} &
-\headrow{\tx{Contract Guard}} &
-\headrow{\tx{Slither}} &
-\headrow{\tx{Odin}} \\ \hline
+\headrow{EY Token Review} &
+\headrow{Smart Check} &
+\headrow{Securify} &
+\headrow{MythX (Mythril)} &
+\headrow{Contract Guard} &
+\headrow{Slither} &
+\headrow{Odin} \\ \hline
 
 \rcl\ccl & \ccl & \tx{Vulnerability or best practice} & \multicolumn{7}{c|}{\ccl} \\ \cline{3-3}
 \rcl\multirow{-2}{*}{\ccl\tx{ID}} & \multirow{-2}{*}{\ccl\tx{SWC}} & Mitigation or recommendation & \multicolumn{7}{c|}{\multirow{-2}{*}{\ccl\tx{Security tools}}} \\ \hline
 
-
+\multirow{2}{*}{55} & \multirow{2}{*}{\BP} & \tx{The decreaseAllowance definition follows the standard} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Defining decreaseAllowance function & & & & & & & \\ \hline
+\multirow{2}{*}{56} & \multirow{2}{*}{\BP} & \tx{The increaseAllowance definition follows the standard} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Defining increaseAllowance function & & & & & & & \\ \hline
+\multirow{2}{*}{57} & \multirow{2}{*}{\BP} & \tx{Minimize attack surface} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking whether all the external functions are necessary or not & & & & & & & \\ \hline
+\multirow{2}{*}{58} & \multirow{2}{*}{\BP} & \tx{Transfer to the burn address is reverted} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking transfer to 0x0 & & & & & & & \\ \hline
+\multirow{2}{*}{59} & \multirow{2}{*}{\BP} & \tx{Source code is decentralized} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Not using hard-coded addresses & & & & & & & \\ \hline
+\multirow{2}{*}{60} & \multirow{2}{*}{\BP} & \tx{Funds can be held only by user-controlled wallets} & \multirow{2}{*}{\info} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking for address code & & & & & & & \\ \hline
 \multirow{2}{*}{61} & \multirow{2}{*}{\BP} & \tx{Code logic is simple to understand} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Avoiding code nesting & & & & & & & \\ \hline
 \multirow{2}{*}{62} & \multirow{2}{*}{\BP} & \tx{All functions are documented} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} &\multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Using NatSpec format & & & & & & & \\ \hline
-\multirow{2}{*}{63} & \multirow{2}{*}{\BP} & \tx{Using only high-level programming language} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Not using inline-assembly codes & & & & & & & \\ \hline
+\multirow{2}{*}{63} & \multirow{2}{*}{\BP} & \tx{The Approval event is correctly logged} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Emitting Approval event & & & & & & & \\ \hline
 \multirow{2}{*}{64} & \multirow{2}{*}{\BP} & \tx{Acceptable gas cost of the approve() function} & \multirow{2}{*}{\info} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking for maximum 50000 gas & & & & & & & \\ \hline
 \multirow{2}{*}{65} & \multirow{2}{*}{\BP} & \tx{Acceptable gas cost of the transfer() function} & \multirow{2}{*}{\info} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking for maximum 60000 gas & & & & & & & \\ \hline
-\multirow{2}{*}{66} & \multirow{2}{*}{\BP} & \tx{"Pull over Push" efficiency pattern} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Allowing user to pull the funds & & & & & & & \\ \hline
+\multirow{2}{*}{66} & \multirow{2}{*}{\BP} & \tx{Emitting event when state changes} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Emitting Change event & & & & & & & \\ \hline
 \multirow{2}{*}{67} & \multirow{2}{*}{\BP} & \tx{Use of unindexed arguments} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Using indexed events' arguments & & & & & & & \\ \hline
 \multirow{2}{*}{68} & \multirow{2}{*}{\BP} & \tx{ERC20 compliance} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Implementing 6 functions and 2 events & & & & & & & \\ \hline
-\multirow{2}{*}{69} & \multirow{2}{*}{\BP} & \tx{Number of external functions} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Minimizing external functions & & & & & & & \\ \hline
+\multirow{2}{*}{69} & \multirow{2}{*}{\BP} & \tx{Conformance to naming conventions} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Following the Solidity naming convention & & & & & & & \\ \hline
 \multirow{2}{*}{70} & \multirow{2}{*}{\BP} & \tx{Token decimal} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Adding a token decimal declaration & & & & & & & \\ \hline
 \multirow{2}{*}{71} & \multirow{2}{*}{\BP} & \tx{Locked money} & \multirow{2}{*}{\na} &\multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Implement a withdraw function or reject payments & & & & & & & \\ \hline
 \multirow{2}{*}{72} & \multirow{2}{*}{\BP} & \tx{Malicious libraries} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Not using modifiable third-party libraries & & & & & & & \\ \hline
@@ -41,13 +46,6 @@
 \multirow{2}{*}{81} & \multirow{2}{*}{\BP} & \tx{Non-initialized return value} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Not specifying return for functions without output & & & & & & & \\ \hline
 \multirow{2}{*}{82} & \multirow{2}{*}{\BP} & \tx{Token symbol} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Adding a token symbol variable & & & & & & & \\ \hline
 \multirow{2}{*}{83} & \multirow{2}{*}{\BP} & \tx{Allowance spending is possible} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Ability of token transfer by transferFrom() & & & & & & & \\ \hline
-\multirow{2}{*}{84} & \multirow{2}{*}{\BP} & \tx{The Approval event is correctly logged} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Emitting Approval event & & & & & & & \\ \hline
-\multirow{2}{*}{85} & \multirow{2}{*}{\BP} & \tx{Builtin Symbol Shadowing} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Renaming variables & & & & & & & \\ \hline
-\multirow{2}{*}{86} & \multirow{2}{*}{\BP} & \tx{Low level calls} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\fp} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking successful return value from call() & & & & & & & \\ \hline
-\multirow{2}{*}{87} & \multirow{2}{*}{\BP} & \tx{Conformance to naming conventions} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Following the Solidity naming convention & & & & & & & \\ \hline
-\multirow{2}{*}{88} & \multirow{2}{*}{\BP} & \tx{Too many digits} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Using scientific notation & & & & & & & \\ \hline
-\multirow{2}{*}{89} & \multirow{2}{*}{\BP} & \tx{Emitting event when state changes} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Emitting Change event & & & & & & & \\ \hline
-\multirow{2}{*}{90} & \multirow{2}{*}{\BP} & \tx{Minimize attack surface} & \multirow{2}{*}{\pass} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} & \multirow{2}{*}{\na} \\ \cline{3-3} & & Checking all the external functions are necessary & & & & & & & \\ \hline
 
 
 \hline
