@@ -10,9 +10,10 @@ The development of smart contracts has proven to be error-prone in practice, and
 	\item There is no vulnerability reference site (like https://swcregistry.io) for \erc tokes. We collected them all in the paper.
 	\item Some vulnerabilities are specific to \erc token that cannot be categorized under smart contract vulnerabilities, so, need separate work as we did
 	\item We provided list of \num vulnerabilities for \erc tokens by including best practices to improve the performance and make it ready for industrial implementations (\eg ICOs, DApps, \etc)
-	\item \sys passed all audits of 7 tools, proving its security against current Ethereum vulnerabilities. Also, detected security issue in the comparison table are false positives that are considered as failed check for \sys to make a fair comparison
+	\item \sys passed all audits of 7 tools, proving its security against current Ethereum vulnerabilities. 
+	\item Detected security issue in the comparison table are false positives. We considered them as failed checks to make a fair comparison with other tokens.
 	\item The code is available in compatible Solidity version (0.5.11) and the latest version (0.7.1), but the latter may not be used by audit tools.
-	\item We ignored some known tools (like Oyente) due to their support from legacy Solidity versions (knows compiler bugs).
+	\item We ignored some known tools (like Oyente) due to their support of legacy Solidity versions. There are knows compiler bugs in those versions.
 	\item If businesses are looking for a secure token, \sys can be used as a template and customized with advanced features (like multi parties approval for withdrawing ETH).
 \end{itemize}
 
