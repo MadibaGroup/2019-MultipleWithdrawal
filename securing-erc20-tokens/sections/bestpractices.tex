@@ -6,7 +6,7 @@ In addition to reviewing known vulnerabilities, we also took into account a numb
 
 \subsubsection{Compliance with \erc.}
 
-According to the \erc specifications, all 6 methods and 2 events must be implemented and are not optional. Moreover, ignoring them can cause failed function calls by other applications (\ie crypto-wallets, crypto-exchanges, web services, etc) which are expecting them. Tokens that are not implementing all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) might also be vulnerable to complex attacks (\cf  \cite{DEPOSafe}). For \sys, we implement all the required methods, and add some complementary functions such as \texttt{sell()} and \texttt{buy()}. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance.
+According to the \erc specifications, all 6 methods and 2 events must be implemented and are not optional. Moreover, ignoring them can cause failed function calls by other applications (\ie crypto-wallets, crypto-exchanges, web services, etc) which are expecting them. Tokens that are not implementing all methods (\eg \texttt{approve()} or \texttt{transferFrom()}) might also be vulnerable to complex attacks (\cf \cite{DEPOSafe}). For \sys, we implement all the required methods, and add some complementary functions such as \texttt{sell()} and \texttt{buy()}. \texttt{sell()} allows token holders to exchange tokens for ETH and \texttt{buy()} accepts ETH by adjusting buyer's token balance.
 
 \subsubsection{Firing events.}
 
@@ -18,7 +18,7 @@ Solidity supports two types of \textit{function calls}: internal and external~\c
 
 \subsubsection{Fail-Safe Mode.}
 
-In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. To freeze all functionality, the owner of the token can call a \texttt{pause()} function. It then sets a lock variable and methods are marked with a \texttt{notPaused} modifier that throws exceptions until functionality is restored using \texttt{unpause()}. In \sys, we apply a \texttt{notPaused} modifier to all external functions (\eg \texttt{transfer()}, \texttt{sell()}, \etc).
+In the case of a detected anomaly or attack on a deployed \erc token, the functionality of the token can be frozen pending further investigation. To freeze all functionality, the owner of the token can call a \texttt{pause()} function. It then sets a lock variable and methods are marked with a \texttt{notPaused} modifier that throws exceptions until functionality is restored using \texttt{unpause()}. In \sys, we apply \texttt{notPaused} modifier to all external functions (\eg \texttt{transfer()}, \texttt{sell()}, \etc).
 
 \subsubsection{Global or Miner controlled variables.}
 
