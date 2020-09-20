@@ -12,6 +12,10 @@ According to the \erc specifications, all 6 methods and 2 events must be impleme
 
 In \erc standard, there are two defined events: \texttt{Approval} and \texttt{Transfer}. The first event logs successful allowance changes by token holders and the second logs successful token transfers by the \texttt{transfer()} and \texttt{transferFrom()} methods. These two events must be fired to notify external application on occurred changes. The external application might use them to update balances, show UI notifications, or to check new token approvals. In addition to the above logs, we define 6 extra events in \sys that are \texttt{Buy}, \texttt{Sell}, \texttt{Received}, \texttt{Withdrawal}, \texttt{Change} and \texttt{Pause}. These can be used to watch for token events and react accordingly.
 
+\subsubsection{DoS with unexpected revert.}
+
+A function that attempts to complete many operations that individually may revert could deadlock if one operation always fails. For example, \texttt{transfer()} can throw an exception---if one transfer in a sequence fails, the whole sequence fails. One standard practice is to account for ETH owed and require withdrawals through a dedicated function. In \sys, ETH is only transferred to a single party in a single function \texttt{sell()}. It seems overkill to implement a whole accounting system for this. As a consequence, a seller that is incapable of receiving ETH (\eg operating from a contract that is not payable) will be unable to sell their tokens for ETH. However they can recover by transferring the tokens to a new address to sell from. 
+
 \subsubsection{External visibility.}
 
 Solidity supports two types of \textit{function calls}: internal and external~\cite{SolidityDoc}. Internal function calls expect arguments to be in memory and the EVM copies the arguments to memory. Internal calls use \texttt{JUMP} opcodes instead of creating an \textit{EVM call}.\footnote{Also known as ``message call'' when a contract calls a function of another contract.} Conversely, External function calls create an \textit{EVM call} and can read arguments directly from the \texttt{calldata} space. This is cheaper than allocating new memory and designed as a read-only byte-addressable space where the data parameter of a transaction or call is held~\cite{EthInDepth}. A best practice is to use external functions when we expect that functions will be called externally. We follow this recommendation in \sys by using \texttt{External} visibility on all such methods instead of \texttt{Public}. 
@@ -22,15 +26,13 @@ In the case of a detected anomaly or attack on a deployed \erc token, the functi
 
 \subsubsection{Global or Miner controlled variables.}
 
-Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{tx.origin}, \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables. For example, \texttt{tx.origin} can be compromised by a phishing attack; thus it is safer to use \texttt{msg.sender} when determining the transaction caller. We do not use such variables for conditional execution, authentication, or randomness.
+Since malicious miners have the ability to manipulate global Solidity variables (\eg \texttt{block.timestamp}, \texttt{block.number}, \texttt{block.difficulty}, \etc), it is recommended to avoid these variables. We do not use such variables for conditional execution, authentication, or randomness.
 
 \subsubsection{Proxy contracts.}
 
 An \erc token can be deployed with a pair of contracts: a proxy contract that passes through all the function calls to a second functioning \erc contract~\cite{ProxyContract,ProxyPatterns}. One use of a proxy contract is when upgrades are required---a new functional contract can be deployed and the proxy is modified to point at the update. We concentrate on building a secure, standalone implementation. Users of \sys can freely proxy \sys as they choose. 
 
-\subsubsection{DoS with unexpected revert.}
 
-A function that attempts to complete many operations that individually may revert could deadlock if one operation always fails. For example, \texttt{transfer()} can throw an exception---if one transfer in a sequence fails, the whole sequence fails. One standard practice is to account for ETH owed and require withdrawals through a dedicated function. In \sys, ETH is only transferred to a single party in a single function \texttt{sell()}. It seems overkill to implement a whole accounting system for this. As a consequence, a seller that is incapable of receiving ETH (\eg operating from a contract that is not payable) will be unable to sell their tokens for ETH. However they can recover by transferring the tokens to a new address to sell from. 
 
 % JC: The one below isn't a strong as the ones above, I think we can drop it
 

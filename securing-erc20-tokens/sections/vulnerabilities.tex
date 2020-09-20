@@ -59,10 +59,11 @@ The \texttt{DELEGATECALL} opcode in Ethereum enables a DApp to invoke external f
 
 As DApps can receive and hold ETH, just like a user accounts, functions need to be defined to withdrawal deposited ETH (including unexpected ETH mentioned above in Section~\ref{sec:unexpected}). If these functions are not defined correctly, a DApp might hold ETH with no way of recovering it (\cf Parity Wallet~\cite{ParityWalletHack}). We define a \texttt{withdraw()} function which allows the owner to transfer ETH out of the contract. {\chg If necessary, developers can make the withdrawal subject to several signatures that enforces consensus on the ETH withdrawals.} The \texttt{sale()} function also makes it possible to transfer ETH during token exchange.
 
+\subsection{Unprotected Ether Withdrawal}
+
+Improper access control may allow unauthorized persons to withdraw ETH from smart contracts (\cf Rubixi\footnote{\url{https://bit.ly/2yrYP7P}}). Therefore, withdrawals must be triggered by only authorized accounts. We use \texttt{onlyOwner} modifier to enforce authentication on \texttt{withdraw()} function before sending out any funds. {\chg This modifier can also be extended to get approvals from multiple parties in addition to the token owner.}
+
 \subsection{Unprotected SELFDESTRUCT}
 
 Another vulnerability stemming from the second Parity wallet attack~\cite{ParitySecondHack} is protecting the \texttt{SELFDESTRUCT} opcode which removes a contract from Ethereum's. Self-destruct method is used to kill the contract and associated storage. It is recommended to get approval by multiple parties before running the method. We do not use this method and the deployed \erc tokens will be active on the blockchain forever.
 
-\subsection{Unprotected Ether Withdrawal}
-
-Improper access control may allow unauthorized persons to withdraw ETH from smart contracts (\cf Rubixi\footnote{\url{https://bit.ly/2yrYP7P}}). Therefore, withdrawals must be triggered by only authorized accounts. We use \texttt{onlyOwner} modifier to enforce authentication on \texttt{withdraw()} function before sending out any funds. {\chg This modifier can also be extended to get approvals from multiple parties in addition to the token owner.}
