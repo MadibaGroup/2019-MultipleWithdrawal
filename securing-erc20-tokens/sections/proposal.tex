@@ -13,7 +13,7 @@ In addition to the standard \erc methods, we also implement the following comple
 \begin{enumerate}
 	\item \textbf{Buying tokens:} \erc tokens can be offered to users for purchase. Users call the \texttt{buy()} function which accepts ETH (\ie defined as \textit{payable}) to be held by the \erc contract. The contract calculates the equivalent number of tokens based on the current exchange rate, increases the token balance of the buyer, and logs a \texttt{Buy} event.
 	\item \textbf{Selling tokens:} By using \texttt{sell()} function, token holders can send back tokens to the contract and receive ETH in return as long as the contract holds ETH (see withdrawing ETH below). After each exchange, a \texttt{Sell} event triggers. 
-	\item \textbf{Withdrawing Ether:} This function can be called only by the contract owner {\chg (Or other parties in multi-owner implementations)}. The \texttt{withdraw()} function will transfer ETH out of the contract. This mitigates the unexpected ETH issue. Transferring ETH out of the contract logs a \texttt{Withdrawal} event.
+	\item \textbf{Withdrawing Ether:} This function can be called only by the contract owner (or with a set of authorizations in a multi-owner implementations). The \texttt{withdraw()} function will transfer ETH out of the contract. This mitigates the unexpected ETH issue. Transferring ETH out of the contract logs a \texttt{Withdrawal} event.
 \end{enumerate}
 
 These extra features allow the purchase and sale of tokens independently of an exchange service for fixed priced tokens.
